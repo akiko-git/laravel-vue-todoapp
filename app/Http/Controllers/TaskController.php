@@ -9,7 +9,10 @@ class TaskController extends Controller
 {
 		public function index(){
 			$tasks = Task::all();
-			dd($tasks->toArray());
-			return view('index');
+			//dd($tasks->toArray());
+			//return view('todolist.index')->with('tasks',$tasks);
+			$tasks = json_encode($tasks);
+			return view('todolist.index')->with('tasks',$tasks);
+			//return response()->json(['tasks'=>$tasks]);
 		}
 }
