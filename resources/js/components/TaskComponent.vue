@@ -1,14 +1,30 @@
 <template>
 
+
 <v-card
-	max-width="500"
+	max-width="1000"
 	class="mx-auto"
 >
 	<v-container>
+
+		<v-form>
+			<v-row>
+				<v-col class="mx-auto">
+					<v-text-field v-model="addTask" label="add task" solo>
+						<template v-slot:append-outer>
+							<v-btn class="mx-2" fab dark color="#3F51B5">
+								<v-icon color="#FFFFFF">mdi-plus</v-icon>
+							</v-btn>	
+						</template>
+					</v-text-field>
+				</v-col>
+			</v-row>
+		</v-form>
+
 		<v-row dense>
-			<v-col cols="12" v-for="list in todolistData">
+			<v-col class="mx-auto" cols="8" v-for="list in todolistData">
 				<v-card
-					dark
+					color="#E8EAF6"
 				>
 					<v-card-title class="headline">
 						<v-card-title>{{ list.title }}</v-card-title>
@@ -28,7 +44,13 @@
 					type:Object
 				},
 			},
-			name:'task'
+			name:'task',
+			data(){
+				return{
+					addTask:""
+				};
+				console.log(this.addTask);
+			},
 		}
 </script>
 
