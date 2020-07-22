@@ -7,12 +7,12 @@
 >
 	<v-container>
 
-		<v-form>
+			<v-form @submit.prevent="test()">
 			<v-row>
 				<v-col class="mx-auto">
 					<v-text-field v-model="addTask" label="add task" solo>
 						<template v-slot:append-outer>
-							<v-btn class="mx-2" fab dark color="#3F51B5">
+							<v-btn type="submit" class="mx-2" fab dark color="#3F51B5">
 								<v-icon color="#FFFFFF">mdi-plus</v-icon>
 							</v-btn>	
 						</template>
@@ -51,6 +51,13 @@
 				};
 				console.log(this.addTask);
 			},
-		}
+			methods:{
+				test:function(){
+					axios.post('http://localhost:8001/todolist/form/',this.addTask).then(res => {
+						console.log(res);
+					});
+				}
+			}	
+		}	
 </script>
 

@@ -15,4 +15,13 @@ class TaskController extends Controller
 			return view('todolist.index')->with('tasks',$tasks);
 			//return response()->json(['tasks'=>$tasks]);
 		}
+
+		public function form(Request $request){
+			//dd($request->toArray());
+			//$tasks = new Task();
+			//$tasks->title = $request;
+			//$tasks->save();
+			$res = $request->addTask;	
+			return response()->json(['success'=>$res]); 
+		}
 }

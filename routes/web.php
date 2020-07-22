@@ -21,4 +21,5 @@ use Illuminate\Support\Facades\Route;
 Auth::routes();
 
 //Route::get('/home', 'HomeController@index')->name('home');
-Route::get('/', 'TaskController@index')->name('task');
+Route::get('/todolist', 'TaskController@index')->name('task');
+Route::post('/todolist/form', 'TaskController@form')->name('form');
