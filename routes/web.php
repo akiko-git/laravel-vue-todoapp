@@ -24,4 +24,5 @@ Auth::routes();
 Route::get('/todolist', 'TaskController@index')->name('task');
 Route::get('/todolist/store', 'TaskController@store')->name('store');
 Route::post('/todolist/form', 'TaskController@form')->name('form');
+Route::delete('/todolist/delete{id}', 'TaskController@destroy');
 //Route::post('/todolist/form', function(){dd(request()->all());});
