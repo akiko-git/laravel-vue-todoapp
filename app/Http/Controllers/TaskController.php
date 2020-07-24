@@ -18,10 +18,15 @@ class TaskController extends Controller
 
 		public function form(Request $request){
 			//dd($request->toArray());
-			//$tasks = new Task();
-			//$tasks->title = $request;
-			//$tasks->save();
-			$res = $request->addTask;	
-			return response()->json(['success'=>$res]); 
+			$tasks = new Task;
+			$tasks->title = $request->addTask;
+			$res = $request->addTask; 
+			$tasks->save();
+			return response()->json(['success'=>$tasks]); 
+		}
+
+		public function store(){
+			$tasks = Task::all();
+			return response()->json(['getlist'=>$tasks]);
 		}
 }
