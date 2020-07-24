@@ -29,6 +29,9 @@
 					<v-card-title class="headline">
 						<v-card-title>{{ list.title }}</v-card-title>
 						<v-card-text>{{ list.text }}</v-card-text>
+						<template>
+							<v-icon @click="deleteTask(list.id)">mdi-trash-can</v-icon>
+						</template>	
 					</v-card-title>
 				</v-card>
 			</v-col>
@@ -60,6 +63,18 @@
 						this.lists.push(res.data.success);
 					});
 				},
+				deleteTask:function(id){
+					axios.delete('http://localhost:8001/todolist/delete'+id).then(res=>{
+						//this.lists.splice(res.data.success);
+					  this.getList();	
+					});	
+				},
+				getList:function(){
+					axios.get('http://localhost:8001/todolist/store').then(res=>{
+						this.lists = res.data.getlist;
+						return true;
+					});
+				}
 			}	
 		}
 </script>
