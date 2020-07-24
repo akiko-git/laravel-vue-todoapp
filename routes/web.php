@@ -22,4 +22,6 @@ Auth::routes();
 
 //Route::get('/home', 'HomeController@index')->name('home');
 Route::get('/todolist', 'TaskController@index')->name('task');
+Route::get('/todolist/store', 'TaskController@store')->name('store');
 Route::post('/todolist/form', 'TaskController@form')->name('form');
+//Route::post('/todolist/form', function(){dd(request()->all());});
