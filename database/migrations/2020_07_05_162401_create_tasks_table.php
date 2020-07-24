@@ -14,13 +14,13 @@ class CreateTasksTable extends Migration
     public function up()
     {
         Schema::create('tasks', function (Blueprint $table) {
-            $table->id(); 
+            $table->id();
             $table->string('title');
-            $table->text('text');
-            $table->date('deadline');
-						$table->text('status');
-						$table->foreignId('category_id')->constrained('categories_table');
-						$table->foreignId('users_id')->constrained()->onDelete('cascade');
+            $table->text('text')->nullable();
+            $table->date('deadline')->nullable();
+            $table->text('status')->nullable();
+						//$table->foreignId('category_id')->constrained('categories_table');
+						//$table->foreignId('users_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });
     }
