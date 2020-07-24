@@ -29,4 +29,12 @@ class TaskController extends Controller
 			$tasks = Task::all();
 			return response()->json(['getlist'=>$tasks]);
 		}
+
+		public function destroy($id){
+			$task = Task::find($id);
+			if($task){
+				$res = $task->delete();
+			}
+			return response()->json(['success'=>$res]);
+		}
 }
