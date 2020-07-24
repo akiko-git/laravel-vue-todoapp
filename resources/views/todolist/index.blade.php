@@ -4,6 +4,7 @@
 <h1>Todolist</h1>
 
 <div id="app">
-	<task v-bind:todolist-data={{ $tasks }}></task>
+	<!--<task v-bind:todolist-data={{ $tasks }}></task>-->
+	<task></task>
 </div>
 @endsection
