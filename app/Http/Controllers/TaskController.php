@@ -19,7 +19,8 @@ class TaskController extends Controller
 		public function form(Request $request){
 			//dd($request->toArray());
 			$tasks = new Task;
-			$tasks->title = $request->addTask;
+			$tasks->title = $request->addTaskTitle;
+			$tasks->text = $request->addTaskText;
 			$res = $request->addTask; 
 			$tasks->save();
 			return response()->json(['success'=>$tasks]); 
