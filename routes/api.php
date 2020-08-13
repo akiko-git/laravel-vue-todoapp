@@ -14,6 +14,11 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
-});
+//Route::middleware('auth:api')->get('/user', function (Request $request) {
+//    return $request->user();
+//});
+
+Route::get('/todolist', 'TaskController@index')->name('task');
+Route::get('/todolist/store', 'TaskController@store')->name('store');
+Route::post('/todolist/form', 'TaskController@form')->name('form');
+Route::delete('/todolist/delete{id}', 'TaskController@destroy');

@@ -17,12 +17,17 @@ use Illuminate\Support\Facades\Route;
     return view('welcome');
 });
  */
-
+/*
 Auth::routes();
 
-//Route::get('/home', 'HomeController@index')->name('home');
 Route::get('/todolist', 'TaskController@index')->name('task');
 Route::get('/todolist/store', 'TaskController@store')->name('store');
 Route::post('/todolist/form', 'TaskController@form')->name('form');
 Route::delete('/todolist/delete{id}', 'TaskController@destroy');
+ */
 //Route::post('/todolist/form', function(){dd(request()->all());});
+
+Route::get('/{any}', function () {
+     return view('index');
+})->where('any', '.*');
+
