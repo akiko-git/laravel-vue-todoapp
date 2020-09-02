@@ -1,7 +1,6 @@
 <template>
-<v-app>
-	<v-container>
-		<h1>Todolist</h1>
+	<div class="list">
+		<h1 class="d-lg-12">Todolist</h1>
 			<v-form @submit.prevent="add()">
 			<v-row>
 				<v-col class="mx-auto mb-8" cols="8">
@@ -57,8 +56,7 @@
 					</v-card-actions>
 				</v-card>
 		</v-dialog>
-	</v-container>
-</v-app>
+	</div>	
 </template>
 
 <script>
@@ -118,4 +116,6 @@
 			}
 		}
 </script>
-
+<style>
+	.list {width:70%;}
+</style>
