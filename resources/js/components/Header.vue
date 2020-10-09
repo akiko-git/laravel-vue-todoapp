@@ -16,7 +16,6 @@
           <template v-slot:activator>
             <ProjectDialog @close="isPush = false">
               <template v-slot:activator="{ on }">
-                <!-- <i v-if="hoverFlag" class="fas fa-plus" @click="on"></i> -->
                 <v-icon v-on="on" small @click="pushIcon()">fas fa-plus</v-icon>
               </template>
             </ProjectDialog>
@@ -24,8 +23,18 @@
               <v-list-item-title>プロジェクト</v-list-item-title>
             </v-list-item-content>
           </template>
-          <v-list-item v-for="(pro, i) in pros" :key="i" link>
-            <v-list-item-title v-text="pro[0]"></v-list-item-title>
+          <v-list-item v-for="projectList in projectLists" link>
+            <v-list-item-title>{{ projectList.project }}</v-list-item-title>
+            <v-menu bottom left>
+              <template v-slot:activator="{ on, attrs }">
+                <v-icon v-bind="attrs" v-on="on" small>fas fa-list</v-icon>
+              </template>
+              <v-list>
+                <v-list-item v-for="(item, index) in items" :key="index">
+                  <v-list-item-title>{{ item.title }}</v-list-item-title>
+                </v-list-item>
+              </v-list>
+            </v-menu>
           </v-list-item>
         </v-list-group>
       </v-list>
@@ -44,6 +53,8 @@ export default {
     pros: [["お知らせ"]],
     hoverFlag: false,
     isPush: false,
+    projectLists: [],
+    items: [{ title: "test1" }],
   }),
   methods: {
     mouseOverAction() {
@@ -61,9 +72,20 @@ export default {
     test() {
       alert("test");
     },
+    // 一覧表示
+    getProjectList() {
+      axios.get("http://localhost:8001/api/project/show").then((res) => {
+        this.projectLists = res.data.getProjectList;
+        console.log(res);
+        return true;
+      });
+    },
   },
   components: {
     ProjectDialog: () => import("./ProjectDialog"),
+  },
+  created() {
+    this.getProjectList();
   },
 };
 </script>
