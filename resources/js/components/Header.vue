@@ -34,20 +34,27 @@
                 <v-icon v-bind="attrs" v-on="on" small>fas fa-list</v-icon>
               </template>
               <v-list>
+                <ProjectDialog
+                  @close="isPush = false"
+                  @regist="getProjectList"
+                  ref="edit"
+                >
+                  <template v-slot:activator="{ on }">
+                    <v-list-item v-on="on" small @click="pushIcon()">
+                      <v-list-item-icon class="mr-2">
+                        <v-icon>mdi-pencil</v-icon>
+                      </v-list-item-icon>
+                      <v-list-item-title>プロジェクトを編集</v-list-item-title>
+                    </v-list-item>
+                  </template>
+                </ProjectDialog>
                 <v-list-item
-                  v-for="deatail in projectDetails"
-                  @click="
-                    pushDeatail(
-                      deatail.item,
-                      projectList.id,
-                      projectList.project
-                    )
-                  "
+                  @click="deleteConfirm(projectList.id, projectList.project)"
                 >
                   <v-list-item-icon class="mr-2">
-                    <v-icon>{{ deatail.icon }}</v-icon>
+                    <v-icon>mdi-trash-can</v-icon>
                   </v-list-item-icon>
-                  <v-list-item-title>{{ deatail.text }}</v-list-item-title>
+                  <v-list-item-title>プロジェクトを削除</v-list-item-title>
                 </v-list-item>
               </v-list>
             </v-menu>
@@ -76,6 +83,15 @@
           </v-card-actions>
         </v-card>
       </v-dialog>
+      <ProjectDialog
+        @close="isPush = false"
+        @regist="getProjectList"
+        ref="edit"
+      >
+        <template v-slot:activator="{ on }">
+          <v-icon v-on="on" small @click="pushIcon()">fas fa-plus</v-icon>
+        </template>
+      </ProjectDialog>
     </v-navigation-drawer>
     <v-app-bar class="indigo" fixed app dark clipped-left>
       <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
@@ -111,13 +127,14 @@ export default {
     },
     pushIcon() {
       this.isPush = true;
+      //console.log(this.on);
     },
     test() {
       alert("test");
     },
     pushDeatail(item, id, project) {
       if (item == "edit") {
-        this.$refs.edit.open();
+        // this.$refs.edit.open();
       } else if (item == "delete") {
         this.deleteConfirm(id, project);
       }
