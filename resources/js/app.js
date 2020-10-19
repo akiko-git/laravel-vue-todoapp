@@ -10,10 +10,12 @@ window.Vue = require('vue');
 import Vue from "vue";
 import router from './router';
 import Vuetify from 'vuetify';
+import store from './store/index';
 import 'vuetify/dist/vuetify.min.css';
 import 'material-design-icons-iconfont/dist/material-design-icons.css';
 import '@mdi/font/css/materialdesignicons.css';
 import axios from "axios";
+import App from "./App.vue";
 Vue.use(Vuetify);
 
 
@@ -37,7 +39,10 @@ Vue.use(Vuetify);
  */
 
 const app = new Vue({
-		el:'#vueTmp',
-		router,
-		vuetify : new Vuetify()
+	el: '#app',
+	router,
+	store,
+	vuetify: new Vuetify(),
+	components: { App },
+	template: '<App />'
 });
