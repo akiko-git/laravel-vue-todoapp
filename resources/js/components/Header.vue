@@ -14,11 +14,7 @@
           v-bind:disabled="isPush"
         >
           <template v-slot:activator>
-            <ProjectDialog
-              @close="isPush = false"
-              @regist="getProjectList"
-              ref="edit"
-            >
+            <ProjectDialog @close="isPush = false" @regist="getProjectList">
               <template v-slot:activator="{ on }">
                 <v-icon v-on="on" small @click="pushIcon()">fas fa-plus</v-icon>
               </template>
@@ -27,17 +23,29 @@
               <v-list-item-title>プロジェクト</v-list-item-title>
             </v-list-item-content>
           </template>
-          <v-list-item v-for="projectList in projectLists" link>
+          <v-list-item
+            v-for="(projectList, index) in projectLists"
+            link
+            @click="postProjectId(projectList.id)"
+          >
             <v-list-item-title>{{ projectList.project }}</v-list-item-title>
-            <v-menu bottom right offset-x>
+            <v-menu
+              bottom
+              right
+              offset-x
+              :close-on-content-click="false"
+              :value="MenuContentClick"
+            >
               <template v-slot:activator="{ on, attrs }">
                 <v-icon v-bind="attrs" v-on="on" small>fas fa-list</v-icon>
               </template>
               <v-list>
                 <ProjectDialog
-                  @close="isPush = false"
                   @regist="getProjectList"
-                  ref="edit"
+                  :dialogTitle="edit"
+                  :dialogBtnText="editBtn"
+                  :editData="projectList"
+                  @close="isPush = false"
                 >
                   <template v-slot:activator="{ on }">
                     <v-list-item v-on="on" small @click="pushIcon()">
@@ -59,6 +67,27 @@
               </v-list>
             </v-menu>
           </v-list-item>
+          <ProjectDialog @regist="getProjectList" @close="isPush = false">
+            <template v-slot:activator="{ on }">
+              <v-list-item
+                v-on="on"
+                small
+                @click="pushIcon()"
+                class="textColor"
+              >
+                <v-list-item-icon class="mr-2">
+                  <v-icon small :class="{ iconHover: isHover }"
+                    >fas fa-plus</v-icon
+                  >
+                </v-list-item-icon>
+                <v-list-item-title
+                  @mouseover="isHover = true"
+                  @mouseleave="isHover = false"
+                  >プロジェクトを追加</v-list-item-title
+                >
+              </v-list-item>
+            </template>
+          </ProjectDialog>
         </v-list-group>
       </v-list>
       <v-dialog v-model="deleteProjectDialog" persistent max-width="300">
@@ -83,15 +112,6 @@
           </v-card-actions>
         </v-card>
       </v-dialog>
-      <ProjectDialog
-        @close="isPush = false"
-        @regist="getProjectList"
-        ref="edit"
-      >
-        <template v-slot:activator="{ on }">
-          <v-icon v-on="on" small @click="pushIcon()">fas fa-plus</v-icon>
-        </template>
-      </ProjectDialog>
     </v-navigation-drawer>
     <v-app-bar class="indigo" fixed app dark clipped-left>
       <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
@@ -106,14 +126,14 @@ export default {
     drawer: null,
     hoverFlag: false,
     isPush: false,
+    MenuContentClick: false,
     projectLists: [],
-    projectDetails: [
-      { text: "プロジェクトを編集", icon: "mdi-pencil", item: "edit" },
-      { text: "プロジェクトを削除", icon: "mdi-trash-can", item: "delete" },
-    ],
     deleteProjectDialog: false,
     deleteProjectID: null,
     deleteProjectText: null,
+    edit: "編集",
+    editBtn: "保存",
+    isHover: false,
   }),
   methods: {
     mouseOverAction() {
@@ -122,15 +142,13 @@ export default {
     mouseLeaveAction() {
       this.hoverFlag = false;
     },
-    addProject() {
-      alert("add!!!");
+    //taskストアにプロジェクトidを登録
+    postProjectId(id) {
+      this.$store.commit("task/getProjectId", id);
     },
     pushIcon() {
       this.isPush = true;
       //console.log(this.on);
-    },
-    test() {
-      alert("test");
     },
     pushDeatail(item, id, project) {
       if (item == "edit") {
@@ -148,10 +166,6 @@ export default {
         return true;
       });
     },
-    //プロジェクト編集
-    // editProject(){
-
-    // },
     //プロジェクト削除
     deleteConfirm(id, project) {
       this.deleteProjectDialog = true;
@@ -177,11 +191,33 @@ export default {
   },
 };
 </script>
-<style>
+<style lang="scss" scoped>
 .v-list-item__content {
   padding-left: 20px;
 }
+
 .v-icon.v-icon.v-icon--link {
   padding-left: 5px;
+}
+
+.textColor {
+  .v-list-item__title {
+    color: #bdbdbd;
+    &:hover {
+      color: #e53935;
+    }
+  }
+  .v-icon.v-icon {
+    &:hover {
+      color: #e53935;
+    }
+  }
+  .v-list-item__icon:hover + .v-list-item__title {
+    color: #e53935;
+  }
+}
+
+.iconHover {
+  color: #e53935;
 }
 </style>
