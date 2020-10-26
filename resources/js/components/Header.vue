@@ -2,11 +2,23 @@
   <div>
     <v-navigation-drawer v-model="drawer" app clipped>
       <v-list>
-        <v-list-item>
+        <v-list-item link @click="registTaskStore(null, 'inbox')">
           <v-list-item-icon>
-            <v-icon>mdi-home</v-icon>
+            <v-icon>mdi-package-variant</v-icon>
           </v-list-item-icon>
-          <v-list-item-title>Home</v-list-item-title>
+          <v-list-item-title>インボックス</v-list-item-title>
+        </v-list-item>
+        <v-list-item link @click="registTaskStore(null, 'today')">
+          <v-list-item-icon>
+            <v-icon>mdi-calendar-today</v-icon>
+          </v-list-item-icon>
+          <v-list-item-title>今日</v-list-item-title>
+        </v-list-item>
+        <v-list-item link @click="registTaskStore(null, 'comingSoon')">
+          <v-list-item-icon>
+            <v-icon>mdi-calendar-month</v-icon>
+          </v-list-item-icon>
+          <v-list-item-title>近日予定</v-list-item-title>
         </v-list-item>
         <v-list-group
           @mouseover="mouseOverAction"
@@ -26,7 +38,7 @@
           <v-list-item
             v-for="(projectList, index) in projectLists"
             link
-            @click="postProjectId(projectList.id)"
+            @click="registTaskStore(projectList.id)"
           >
             <v-list-item-title>{{ projectList.project }}</v-list-item-title>
             <v-menu
@@ -121,6 +133,7 @@
 </template>
 
 <script>
+import moment from "moment";
 export default {
   data: () => ({
     drawer: null,
@@ -142,9 +155,27 @@ export default {
     mouseLeaveAction() {
       this.hoverFlag = false;
     },
-    //taskストアにプロジェクトidを登録
-    postProjectId(id) {
-      this.$store.commit("task/getProjectId", id);
+    //taskストアにプロジェクトキーを登録
+    registTaskStore(id, category) {
+      if (category == "today") {
+        this.$store.commit("task/sideMenuSelect", {
+          projectId: null,
+          deadline: moment().format("YYYY-MM-DD"),
+          category: category,
+        });
+      } else if (category == "comingSoon") {
+        this.$store.commit("task/sideMenuSelect", {
+          projectId: null,
+          deadline: moment().format("YYYY-MM-DD"),
+          category: category,
+        });
+      } else {
+        this.$store.commit("task/sideMenuSelect", {
+          projectId: id,
+          deadline: moment().format("YYYY-MM-DD"),
+          category: category,
+        });
+      }
     },
     pushIcon() {
       this.isPush = true;
@@ -188,6 +219,7 @@ export default {
   },
   created() {
     this.getProjectList();
+    console.log(moment().format("YYYY-MM-DD"));
   },
 };
 </script>

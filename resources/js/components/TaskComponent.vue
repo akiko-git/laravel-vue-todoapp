@@ -1,60 +1,13 @@
 <template>
   <div class="list">
-    <h1 class="d-lg-12">Todolist</h1>
-    <v-form @submit.prevent="add()">
-      <v-row>
-        <v-col class="mx-auto mb-8" cols="8">
-          <v-text-field
-            v-model="addTaskTitle"
-            name="addTaskTitle"
-            label="title"
-            outlined
-          ></v-text-field>
-          <v-textarea
-            v-model="addTaskText"
-            name="addTaskText"
-            label="text"
-            outlined
-            auto-grow
-          ></v-textarea>
-          <v-menu
-            ref="menu"
-            v-model="menu"
-            :close-on-content-click="false"
-            :return-value.sync="date"
-            transition="scale-transition"
-            offset-y
-            min-width="290px"
-          >
-            <template v-slot:activator="{ on, attrs }">
-              <v-text-field
-                v-model="date"
-                label="期限"
-                prepend-inner-icon="event"
-                readonly
-                v-bind="attrs"
-                v-on="on"
-              ></v-text-field>
-            </template>
-            <v-date-picker v-model="date" no-title scrollable>
-              <v-spacer></v-spacer>
-              <v-btn text color="primary" @click="menu = false">Cancel</v-btn>
-              <v-btn text color="primary" @click="$refs.menu.save(date)"
-                >OK</v-btn
-              >
-            </v-date-picker>
-          </v-menu>
-          <v-btn type="submit" class="mx-2"> 送信 </v-btn>
-        </v-col>
-      </v-row>
-    </v-form>
-    <div>{{ projectId }}</div>
+    <!-- <div>{{ projectId }}</div> -->
+    <ComingSoon v-if="type == 'comingSoon'"></ComingSoon>
     <v-card
       class="mx-auto"
       color="#E8EAF6"
       max-width="790"
       v-for="list in lists"
-      v-if="list.id == projectId"
+      v-if="displayList(list)"
     >
       <v-card-title>{{ list.title }}</v-card-title>
       <v-card-text class="pb-2">
@@ -81,36 +34,50 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <AddTask
+      :projectId="projectId"
+      :deadline="time"
+      :category="type"
+      @success="getAddTasc"
+    ></AddTask>
   </div>
 </template>
 
 <script>
+import AddTask from "./AddTask";
+import ComingSoon from "./ComingSoon";
 import { mapState } from "vuex";
 export default {
+  components: {
+    AddTask,
+    ComingSoon,
+  },
   data() {
     return {
-      addTaskTitle: "",
-      addTaskText: "",
       lists: [],
-      date: new Date().toISOString().substr(0, 10),
-      menu: false,
       deleteDialog: false,
       deleteID: null,
       deleteTitle: null,
     };
   },
   methods: {
-    add: function () {
-      const dataform = new FormData();
-      dataform.append("addTaskTitle", this.addTaskTitle);
-      dataform.append("addTaskText", this.addTaskText);
-      dataform.append("date", this.date);
-      axios
-        .post("http://localhost:8001/api/todolist/form", dataform)
-        .then((res) => {
-          console.log(res.data.success);
-          this.lists.push(res.data.success);
-        });
+    //表示するタスク一覧
+    displayList: function (list) {
+      if (this.type == "inbox") {
+        if (list.project_id == null) {
+          return true;
+        }
+      } else if (this.type == "today") {
+        if (this.time == list.deadline) {
+          return true;
+        }
+      } else {
+        if (list.project_id != null && list.project_id == this.projectId) {
+          return true;
+        } else {
+          return false;
+        }
+      }
     },
     deleteConfirm: function (id, title) {
       this.deleteDialog = true;
@@ -135,14 +102,25 @@ export default {
         return true;
       });
     },
-    displayList: function () {
-      console.log(this.postId + "だよ");
+    getAddTasc: function (task) {
+      this.lists.push(task);
+      console.log(this.lists);
     },
   },
   computed: {
-    ...mapState({ postId: (state) => state.task.projectId }),
+    ...mapState({
+      postId: (state) => state.task.projectId,
+      deadline: (state) => state.task.deadline,
+      category: (state) => state.task.category,
+    }),
     projectId: function () {
       return this.postId;
+    },
+    time: function () {
+      return this.deadline;
+    },
+    type: function () {
+      return this.category;
     },
   },
   created() {
