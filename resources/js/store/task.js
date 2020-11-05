@@ -3,11 +3,15 @@ const task = {
 
   state: {
     projectId: null,
+    deadline: null,
+    category: null,
   },
   // getters: { ... },
   mutations: {
-    getProjectId(state, id) {
-      state.projectId = id;
+    sideMenuSelect(state, { projectId, deadline, category }) {
+      state.deadline = deadline;
+      state.category = category;
+      state.projectId = projectId;
     },
   }
   // actions: { ... }

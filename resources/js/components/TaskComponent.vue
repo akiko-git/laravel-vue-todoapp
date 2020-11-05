@@ -1,7 +1,7 @@
 <template>
   <div class="list">
     <!-- <div>{{ projectId }}</div> -->
-    <ComingSoon v-if="type == 'comingSoon'"></ComingSoon>
+    <ComingSoon v-if="type == 'comingSoon'" :taskList="lists"></ComingSoon>
     <v-card
       class="mx-auto"
       color="#E8EAF6"
@@ -15,9 +15,12 @@
       </v-card-text>
       <v-card-actions>
         <v-card-text class="pt-2 px-2">期限：{{ list.deadline }}</v-card-text>
-        <v-icon @click="deleteConfirm(list.id, list.title)"
-          >mdi-trash-can</v-icon
-        >
+        <v-btn icon>
+          <v-icon>mdi-pencil</v-icon>
+        </v-btn>
+        <v-btn icon @click="deleteConfirm(list.id, list.title)">
+          <v-icon>mdi-trash-can</v-icon>
+        </v-btn>
       </v-card-actions>
     </v-card>
     <v-dialog v-model="deleteDialog" persistent max-width="300">
@@ -39,6 +42,7 @@
       :deadline="time"
       :category="type"
       @success="getAddTasc"
+      v-if="type != 'comingSoon'"
     ></AddTask>
   </div>
 </template>
@@ -134,6 +138,6 @@ export default {
 </script>
 <style>
 .list {
-  width: 70%;
+  width: 80%;
 }
 </style>
