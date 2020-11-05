@@ -2,19 +2,31 @@
   <div>
     <v-navigation-drawer v-model="drawer" app clipped>
       <v-list>
-        <v-list-item link @click="registTaskStore(null, 'inbox')">
+        <v-list-item
+          link
+          :class="{ active: isActive === 'inbox' }"
+          @click="registTaskStore(null, 'inbox'), change('inbox')"
+        >
           <v-list-item-icon>
             <v-icon>mdi-package-variant</v-icon>
           </v-list-item-icon>
           <v-list-item-title>インボックス</v-list-item-title>
         </v-list-item>
-        <v-list-item link @click="registTaskStore(null, 'today')">
+        <v-list-item
+          link
+          :class="{ active: isActive === 'today' }"
+          @click="registTaskStore(null, 'today'), change('today')"
+        >
           <v-list-item-icon>
             <v-icon>mdi-calendar-today</v-icon>
           </v-list-item-icon>
           <v-list-item-title>今日</v-list-item-title>
         </v-list-item>
-        <v-list-item link @click="registTaskStore(null, 'comingSoon')">
+        <v-list-item
+          link
+          :class="{ active: isActive === 'comingSoon' }"
+          @click="registTaskStore(null, 'comingSoon'), change('comingSoon')"
+        >
           <v-list-item-icon>
             <v-icon>mdi-calendar-month</v-icon>
           </v-list-item-icon>
@@ -38,7 +50,8 @@
           <v-list-item
             v-for="(projectList, index) in projectLists"
             link
-            @click="registTaskStore(projectList.id)"
+            :class="{ active: isActive === projectList.id }"
+            @click="registTaskStore(projectList.id), change(projectList.id)"
           >
             <v-list-item-title>{{ projectList.project }}</v-list-item-title>
             <v-menu
@@ -57,10 +70,14 @@
                   :dialogTitle="edit"
                   :dialogBtnText="editBtn"
                   :editData="projectList"
-                  @close="isPush = false"
+                  @close="editDialogClose"
                 >
                   <template v-slot:activator="{ on }">
-                    <v-list-item v-on="on" small @click="pushIcon()">
+                    <v-list-item
+                      v-on="on"
+                      small
+                      @click="pushIcon(), (MenuContentClick = true)"
+                    >
                       <v-list-item-icon class="mr-2">
                         <v-icon>mdi-pencil</v-icon>
                       </v-list-item-icon>
@@ -147,6 +164,7 @@ export default {
     edit: "編集",
     editBtn: "保存",
     isHover: false,
+    isActive: "today",
   }),
   methods: {
     mouseOverAction() {
@@ -177,6 +195,9 @@ export default {
         });
       }
     },
+    change(clickRow) {
+      this.isActive = clickRow;
+    },
     pushIcon() {
       this.isPush = true;
       //console.log(this.on);
@@ -189,7 +210,7 @@ export default {
       }
     },
 
-    // 一覧表示
+    // プロジェクトを一覧表示
     getProjectList() {
       axios.get("http://localhost:8001/api/project/show").then((res) => {
         this.projectLists = res.data.getProjectList;
@@ -213,12 +234,18 @@ export default {
         });
       this.deleteProjectDialog = false;
     },
+    //編集画面を閉じた時の処理
+    editDialogClose() {
+      this.isPush = false;
+      this.MenuContentClick = false;
+    },
   },
   components: {
     ProjectDialog: () => import("./ProjectDialog"),
   },
   created() {
     this.getProjectList();
+    this.registTaskStore(null, "today");
     console.log(moment().format("YYYY-MM-DD"));
   },
 };
@@ -251,5 +278,8 @@ export default {
 
 .iconHover {
   color: #e53935;
+}
+.active {
+  background: #f6f6f6;
 }
 </style>
