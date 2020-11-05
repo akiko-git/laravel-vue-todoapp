@@ -18,7 +18,11 @@ use Illuminate\Support\Facades\Route;
 //    return $request->user();
 //});
 
-Route::get('/todolist', 'TaskController@index')->name('task');
+// Route::get('/todolist', 'TaskController@index')->name('task');
 Route::get('/todolist/store', 'TaskController@store')->name('store');
 Route::post('/todolist/form', 'TaskController@form')->name('form');
 Route::delete('/todolist/delete{id}', 'TaskController@destroy');
+Route::get('/project/show', 'ProjectController@show');
+Route::post('/project/regist', 'ProjectController@regist');
+Route::post('/project/edit', 'ProjectController@edit');
+Route::delete('/project/delete{id}', 'ProjectController@destroy');
