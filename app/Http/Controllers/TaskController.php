@@ -7,30 +7,48 @@ use App\Task;
 
 class TaskController extends Controller
 {
-		public function index(){
-			$tasks = Task::all();
-			//dd($tasks->toArray());
-			//return view('todolist.index')->with('tasks',$tasks);
-			$tasks = json_encode($tasks);
-			return view('todolist.index')->with('tasks',$tasks);
-			//return response()->json(['tasks'=>$tasks]);
-		}
+		// public function index(){
+		// 	$tasks = Task::all();
+		// 	//dd($tasks->toArray());
+		// 	//return view('todolist.index')->with('tasks',$tasks);
+		// 	dd($tasks);
+		// 	$tasks = json_encode($tasks);
+		// 	return view('todolist.index')->with('tasks',$tasks);
+		// 	//return response()->json(['tasks'=>$tasks]);
+		// }
 
-		public function form(Request $request){
-			//dd($request->toArray());
-			$tasks = new Task;
-			$tasks->title = $request->addTaskTitle;
-			$tasks->text = $request->addTaskText;
-			$res = $request->addTask; 
-			$tasks->save();
-			return response()->json(['success'=>$tasks]); 
-		}
-
+    //タスク一覧表示
 		public function store(){
 			$tasks = Task::all();
+			//dd($tasks);
 			return response()->json(['getlist'=>$tasks]);
 		}
 
+    //タスク登録
+		public function form(Request $request){
+			//dd($request->toArray());
+			$tasks = new Task;
+			$tasks->title = $request->title;
+			$tasks->text = $request->text;
+			$tasks->deadline = $request->date;
+			if($request->project_id){
+				$tasks->project_id = $request->project_id;
+			}
+			// $res = $request->addTask;
+			$tasks->save();
+			return response()->json(['success'=>$tasks]);
+		}
+
+		//タスク編集
+		public function edit(Request $request,$id){
+			$task = Task::find($id);
+			if($task){
+				$res = $task->updated($request);
+			}
+			return response()->json(['success'=>$res]);
+		}
+
+		//タスク削除
 		public function destroy($id){
 			$task = Task::find($id);
 			if($task){

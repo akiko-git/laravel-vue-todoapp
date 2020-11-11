@@ -4,6 +4,7 @@
       ref="taskAddDialog"
       dialogTitle="新規登録"
       dialogBtnText="追加"
+      :taskData="selectedEvent"
     ></TaskDialog>
     <v-col>
       <v-toolbar flat>
@@ -67,7 +68,7 @@
               <v-btn icon @click="openTaskDialogAsEdit">
                 <v-icon>mdi-pencil</v-icon>
               </v-btn>
-              <v-btn icon>
+              <v-btn icon @click="deleteConfirm(selectedEvent.taskObj)">
                 <v-icon>mdi-trash-can</v-icon>
               </v-btn>
             </v-toolbar>
@@ -83,17 +84,25 @@
           dialogTitle="編集"
           dialogBtnText="保存"
           :eventObj="selectedEvent"
+          :taskData="selectedEvent"
           @close="editDialogClose"
         ></TaskDialog>
+        <DeleteTask
+          :deleteData="deleteTask"
+          :visible.sync="deleteDialog"
+        ></DeleteTask>
       </v-sheet>
     </v-col>
   </v-row>
 </template>
 <script>
+import { mapActions, mapState, mapGetters } from "vuex";
+import DeleteTask from "./DeleteTask";
 import TaskDialog from "./TaskDialog";
 export default {
   components: {
     TaskDialog,
+    DeleteTask,
   },
 
   data: () => ({
@@ -109,8 +118,11 @@ export default {
     selectedOpen: false,
     events: [],
     colors: ["blue", "indigo", "cyan", "green", "pink", "orange"],
+    deleteTask: {},
+    deleteDialog: false,
   }),
   methods: {
+    ...mapActions("task", ["delete"]),
     viewDay({ date }) {
       this.type = "day";
       this.focus = date;
@@ -167,6 +179,11 @@ export default {
     editDialogClose() {
       this.selectedOpen = false;
     },
+    //タスクの削除
+    deleteConfirm(task) {
+      this.deleteDialog = true;
+      this.deleteTask = task;
+    },
     // updateRange({ start, end }) {
     //   const min = new Date(`${start.date}T00:00:00`);
     //   const max = new Date(`${end.date}T23:59:59`);
@@ -205,6 +222,7 @@ export default {
         color: this.colors[this.rnd(0, this.colors.length - 1)],
         taskId: this.taskList[i].id,
         projectId: this.taskList[i].project_id,
+        taskObj: this.taskList[i],
       });
     }
     // console.log(this.$refs.calendar);

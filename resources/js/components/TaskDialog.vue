@@ -3,7 +3,7 @@
     <v-card>
       <v-card-title>{{ dialogTitle }}</v-card-title>
       <v-card-text>
-        <v-text-field v-model="inputTitle" :counter="20"></v-text-field>
+        <v-text-field v-model="task.title" :counter="20"></v-text-field>
       </v-card-text>
       <v-card-text>
         <v-chip class="mr-2" color="primary" outlined @click="deadline">
@@ -21,6 +21,7 @@
           color="blue darken-1"
           text
           :disabled="activeSave"
+          @click="handleSave(task)"
           >{{ dialogBtnText }}</v-btn
         >
       </v-card-actions>
@@ -28,6 +29,7 @@
   </v-dialog>
 </template>
 <script>
+import { mapActions, mapState, mapGetters } from "vuex";
 export default {
   data: () => ({
     taskDialog: false,
@@ -37,6 +39,7 @@ export default {
     day: "",
     projectName: "",
     projectLists: [],
+    task: {},
   }),
   props: {
     dialogTitle: {
@@ -45,21 +48,24 @@ export default {
     dialogBtnText: {
       type: String,
     },
-    eventObj: {
+    taskData: {
       type: [Object, String],
       default: "",
     },
   },
   methods: {
+    ...mapActions("task", ["fetchTasks", "creatTask", "delete", "update"]),
     open(date) {
+      this.task = {};
       this.taskDialog = true;
       this.day = date;
-      this.inputTitle = this.eventObj.name;
-      if (!this.eventObj.projectId) {
+      this.task.title = this.taskData.name;
+      this.task.id = this.taskData.taskId;
+      if (!this.taskData.projectId) {
         this.projectName = "インボックス";
       } else {
         for (let i in this.projectLists) {
-          if (this.eventObj.projectId == this.projectLists[i].id) {
+          if (this.taskData.projectId == this.projectLists[i].id) {
             this.projectName = this.projectLists[i].project;
           }
         }
@@ -77,6 +83,14 @@ export default {
         this.projectLists = res.data.getProjectList;
         return true;
       });
+    },
+    //保存
+    handleSave(task) {
+      if (task.id) {
+        console.log("idあり");
+      } else {
+        console.log("idなし");
+      }
     },
   },
   computed: {
