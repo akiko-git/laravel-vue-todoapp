@@ -6,6 +6,8 @@ const task = {
     deadline: null,
     category: null,
     tasks: [],
+    events: [],
+    colors: ["blue", "indigo", "cyan", "green", "pink", "orange"],
   },
   mutations: {
     sideMenuSelect(state, { projectId, deadline, category }) {
@@ -17,25 +19,44 @@ const task = {
       state.tasks = tasks;
       // console.log(state.tasks);
     },
-    //タスク一覧取得
-    // fetchTasks(state) {
-    //   state.tasks = [];
-    //   axios.get("http://localhost:8001/api/todolist/store").then((res) => {
-    //     state.tasks = res.data.getlist;
-    //     //console.log(res.data.getlist.text);
-    //     //console.log(res.data.getlist);
-    //     console.log('storeだよ');
-    //     console.log(state.tasks);
-    //     return true;
-    //   }, (error) => {
-    //     console.log(error);
-    //   });
-    // },
+    setEventsData(state) {
+      for (let i in state.tasks) {
+        state.events.push({
+          name: state.tasks[i].title,
+          start: state.tasks[i].deadline,
+          end: state.tasks[i].deadline,
+          taskId: state.tasks[i].id,
+          projectId: state.tasks[i].project_id,
+          taskObj: state.tasks[i],
+          color: state.colors[Math.floor((state.colors.length) * Math.random())],
+        });
+      }
+    },
     add(state, task) {
       state.tasks.push(task);
+      state.events.push({
+        name: task.title,
+        start: task.deadline,
+        end: task.deadline,
+        taskId: task.id,
+        projectId: task.project_id,
+        taskObj: task,
+        color: state.colors[Math.floor((state.colors.length) * Math.random())],
+      });
     },
-    delete(state, index) {
-      state.tasks.splice(index);
+    delete(state, taskid) {
+      const index = state.tasks.findIndex((o) => {
+        return o.id === taskid;
+      });
+      const eventIndex = state.events.findIndex((o) => {
+        return o.taskId === taskid;
+      });
+      if (index) {
+        state.tasks.splice(index);
+        state.events.splice(eventIndex);
+      } else {
+        return false;
+      }
     },
     update(state, { task, newTask }) {
       Object.assign(task, newTask);
@@ -54,8 +75,12 @@ const task = {
 
   getters: {
     getTasks(state) {
+      console.log(state.tasks);
       return state.tasks;
-    }
+    },
+    getEvents(state) {
+      return state.events;
+    },
   },
 
   actions: {
@@ -63,10 +88,15 @@ const task = {
     async fetchTasks({ commit }) {
       await axios.get("http://localhost:8001/api/todolist/store").then((res) => {
         commit('setData', res.data.getlist);
+        commit('setEventsData');
         // console.log('storeだよ');
       }, (error) => {
         console.log(error);
       });
+    },
+    //カレンダー用データをロード
+    fetchEvents({ commit }, { tasks, colors }) {
+      commit('setEventsData', { tasks: tasks, colors: colors });
     },
     //新規登録
     async creatTask({ state, commit }, task) {
@@ -83,11 +113,11 @@ const task = {
     },
     //削除
     async delete({ state, commit }, task) {
-      const index = state.tasks.indexOf(task);
+      // const index = state.tasks.indexOf(task);
       return await axios
         .delete("http://localhost:8001/api/todolist/delete" + task.id)
         .then((res) => {
-          commit('delete', index);
+          commit('delete', task.id);
           return true;
           //this.lists.splice(res.data.success);
           // this.getList();

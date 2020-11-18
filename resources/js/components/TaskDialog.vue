@@ -3,13 +3,55 @@
     <v-card>
       <v-card-title>{{ dialogTitle }}</v-card-title>
       <v-card-text>
-        <v-text-field v-model="task.title" :counter="20"></v-text-field>
+        <v-text-field v-model="task.title" :counter="20"></v-text-field
+        >{{ task.title }}
       </v-card-text>
+      <!-- <v-card-text>
+        <v-text-field v-model="newtask.title" :counter="20"></v-text-field
+        >{{ newtask.title }}
+      </v-card-text>
+ -->
       <v-card-text>
-        <v-chip class="mr-2" color="primary" outlined @click="deadline">
+        <v-menu
+          ref="menu"
+          v-model="menu"
+          :close-on-content-click="false"
+          :return-value.sync="task.date"
+          transition="scale-transition"
+          offset-y
+          min-width="290px"
+        >
+          <template v-slot:activator="{ on, attrs }">
+            <v-chip
+              v-bind="attrs"
+              v-on="on"
+              class="mr-2"
+              color="primary"
+              outlined
+            >
+              <v-icon left>mdi-calendar-today</v-icon>
+              {{ task.date }}
+            </v-chip>
+          </template>
+          <v-date-picker v-model="task.date" no-title scrollable>
+            <v-spacer></v-spacer>
+            <v-btn text color="primary" @click="menu = false">Cancel</v-btn>
+            <v-btn text color="primary" @click="$refs.menu.save(task.date)"
+              >OK</v-btn
+            >
+          </v-date-picker>
+        </v-menu>
+
+        <!-- <v-chip
+          class="mr-2"
+          color="primary"
+          outlined
+          @click="date"
+          v-model="task.date"
+        >
           <v-icon left>mdi-calendar-today</v-icon>
-          {{ day }}
-        </v-chip>
+          {{ task.date }}
+        </v-chip> -->
         <v-chip class="mr-2" color="green" outlined @click="editProject">
           {{ projectName }}
         </v-chip>
@@ -36,7 +78,7 @@ export default {
     start: null,
     end: null,
     inputTitle: "",
-    day: "",
+    menu: false,
     projectName: "",
     projectLists: [],
     task: {},
@@ -48,24 +90,20 @@ export default {
     dialogBtnText: {
       type: String,
     },
-    taskData: {
-      type: [Object, String],
-      default: "",
-    },
   },
   methods: {
     ...mapActions("task", ["fetchTasks", "creatTask", "delete", "update"]),
-    open(date) {
-      this.task = {};
+    open(date, taskData) {
       this.taskDialog = true;
-      this.day = date;
-      this.task.title = this.taskData.name;
-      this.task.id = this.taskData.taskId;
-      if (!this.taskData.projectId) {
+      this.task.date = date;
+      if (taskData) {
+        this.task = Object.assign({}, taskData);
+      }
+      if (!this.task.project_id) {
         this.projectName = "インボックス";
       } else {
         for (let i in this.projectLists) {
-          if (this.taskData.projectId == this.projectLists[i].id) {
+          if (this.task.project_id == this.projectLists[i].id) {
             this.projectName = this.projectLists[i].project;
           }
         }
@@ -74,8 +112,8 @@ export default {
     close() {
       this.taskDialog = false;
       this.$emit("close");
+      this.task = {};
     },
-    deadline() {},
     editProject() {},
     // プロジェクトの一覧を取得
     getProjectList() {
@@ -89,13 +127,20 @@ export default {
       if (task.id) {
         console.log("idあり");
       } else {
-        console.log("idなし");
+        this.creatTask(this.task).then((res) => {
+          if (res === true) {
+            alert("タスクを追加しました");
+          } else {
+            alert("タスクの追加に失敗しました");
+          }
+        });
+        console.log(this.task);
       }
     },
   },
   computed: {
     activeSave() {
-      if (this.inputTitle) {
+      if (this.task.title) {
         return false;
       } else {
         return true;
