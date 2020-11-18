@@ -4,7 +4,6 @@
       ref="taskAddDialog"
       dialogTitle="新規登録"
       dialogBtnText="追加"
-      :taskData="selectedEvent"
     ></TaskDialog>
     <v-col>
       <v-toolbar flat>
@@ -51,9 +50,13 @@
           :event-color="getEventColor"
           @click:event="showEvent"
           @click:date="viewDay"
+          @click:more="viewDay"
           @change="updateRange"
           @click:day="openTaskDialogAsAdd"
         ></v-calendar>
+        <div v-for="test in getTasks">
+          <p v-if="test.deadline === '2020-11-13'">{{ test.title }}</p>
+        </div>
         <v-menu
           v-model="selectedOpen"
           :close-on-content-click="false"
@@ -83,8 +86,6 @@
           ref="taskEditDialog"
           dialogTitle="編集"
           dialogBtnText="保存"
-          :eventObj="selectedEvent"
-          :taskData="selectedEvent"
           @close="editDialogClose"
         ></TaskDialog>
         <DeleteTask
@@ -106,6 +107,7 @@ export default {
   },
 
   data: () => ({
+    today: "2020-05-21",
     focus: "",
     type: "month",
     typeToLabel: {
@@ -122,12 +124,10 @@ export default {
     deleteDialog: false,
   }),
   methods: {
-    ...mapActions("task", ["delete"]),
+    ...mapActions("task", ["fetchTasks", "delete", "fetchEvents"]),
     viewDay({ date }) {
-      this.type = "day";
       this.focus = date;
-      console.log("viewDay");
-      console.log(this.focus);
+      this.type = "day";
     },
     getEventColor(event) {
       return event.color;
@@ -155,25 +155,24 @@ export default {
       this.$refs.calendar.next();
     },
     setToday() {
-      console.log(this.focus);
+      // console.log(this.focus);
       this.focus = "";
     },
-    updateRange(E) {
-      // console.log("updateRange");
-      // console.log(E);
-      // console.log(this.rnd(0, 3));
+    updateRange({ start, end }) {
+      this.events = this.getEvents;
     },
     //タスクの追加
     openTaskDialogAsAdd({ date }) {
-      // console.log(e);
-      // this.selectedEvent = "";
-      // this.editEvent = this.selectedEvent;
       this.$refs.taskAddDialog.open(date);
     },
     //タスクの編集
     openTaskDialogAsEdit() {
       // this.editEvent = this.selectedEvent;
-      this.$refs.taskEditDialog.open(this.selectedEvent.start);
+
+      this.$refs.taskEditDialog.open(
+        this.selectedEvent.start,
+        this.selectedEvent.taskObj
+      );
     },
     //タスクの編集画面を閉じた時の処理
     editDialogClose() {
@@ -184,13 +183,6 @@ export default {
       this.deleteDialog = true;
       this.deleteTask = task;
     },
-    // updateRange({ start, end }) {
-    //   const min = new Date(`${start.date}T00:00:00`);
-    //   const max = new Date(`${end.date}T23:59:59`);
-    //   const days = (max.getTime() - min.getTime()) / 86400000;
-    //   const eventCount = this.rnd(days, days + 20);
-    //   console.log(eventCount);
-    // },
     rnd(min, max) {
       return Math.floor((max - min + 1) * Math.random()) + min;
     },
@@ -202,31 +194,38 @@ export default {
     },
   },
   computed: {
-    pushEvents: function () {
-      this.events = taskList;
-    },
+    ...mapGetters("task", ["getTasks", "getEvents"]),
   },
-  created() {},
+  created() {
+    // this.events = this.events2;
+  },
   mounted() {
-    let currentProjectId = null;
-    for (let i in this.taskList) {
-      // if (this.taskList[i].project_id == null) {
-      //   this.currentProjectId = "null";
-      // } else {
-      //   this.currentProjectId = this.taskList[i].project_id;
-      // }
-      this.events.push({
-        name: this.taskList[i].title,
-        start: this.taskList[i].deadline,
-        end: this.taskList[i].deadline,
-        color: this.colors[this.rnd(0, this.colors.length - 1)],
-        taskId: this.taskList[i].id,
-        projectId: this.taskList[i].project_id,
-        taskObj: this.taskList[i],
-      });
-    }
-    // console.log(this.$refs.calendar);
+    this.$refs.calendar.checkChange();
+    // console.log("storeのイベントの値");
+    // console.log(this.getEvents);
+    // for (let i in this.getTasks) {
+    //   if (this.taskList[i].project_id == null) {
+    //     this.currentProjectId = "null";
+    //   } else {
+    //     this.currentProjectId = this.taskList[i].project_id;
+    //   }
+    //   this.events.push({
+    //     name: this.getTasks[i].title,
+    //     start: this.getTasks[i].deadline,
+    //     end: this.getTasks[i].deadline,
+    //     color: this.colors[this.rnd(0, this.colors.length - 1)],
+    //     taskId: this.getTasks[i].id,
+    //     projectId: this.getTasks[i].project_id,
+    //     taskObj: this.getTasks[i],
+    //     timed: 2,
+    //   });
+    // }
+    // console.log("普通のイベントの値");
     // console.log(this.events);
+    // console.log("カレンダーオブジェクト");
+    // console.log(this.$refs.calendar);
+    // console.log("カレンダータイトル");
+    // console.log(this.$refs.calendar.title);
   },
 };
 </script>
