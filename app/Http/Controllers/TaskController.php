@@ -30,7 +30,7 @@ class TaskController extends Controller
 			$tasks = new Task;
 			$tasks->title = $request->title;
 			$tasks->text = $request->text;
-			$tasks->deadline = $request->date;
+			$tasks->deadline = $request->deadline;
 			if($request->project_id){
 				$tasks->project_id = $request->project_id;
 			}
@@ -43,9 +43,14 @@ class TaskController extends Controller
 		public function edit(Request $request,$id){
 			$task = Task::find($id);
 			if($task){
-				$res = $task->updated($request);
+				$task->title = $request->title;
+				$task->text = $request->text;
+				$task->deadline = $request->deadline;
+				$task->project_id = $request->project_id;
 			}
-			return response()->json(['success'=>$res]);
+			$task->save();
+
+			return response()->json(['success'=>$task]);
 		}
 
 		//タスク削除

@@ -61,6 +61,15 @@ const task = {
     update(state, { task, newTask }) {
       Object.assign(task, newTask);
     },
+
+    eventsUpdate(state, { eventIndex, newTask }) {
+      eventIndex.name = newTask.title;
+      eventIndex.start = newTask.deadline;
+      eventIndex.end = newTask.deadline;
+      eventIndex.projectId = newTask.project_id;
+      eventIndex.taskObj = newTask;
+    },
+
     //タスクの新規登録
     // creatTask(state, task) {
     //   axios
@@ -133,13 +142,20 @@ const task = {
         return o.id === newTask.id;
       });
 
-      if (!task) {
+      const eventIndex = state.events.find((o) => {
+        return o.taskId === newTask.id;
+      });
+
+      if (!task && !eventIndex) {
         return false;
       }
 
       return await axios.patch('http://localhost:8001/api/todolist/edit' + newTask.id, newTask)
         .then(res => {
           commit('update', { task, newTask });
+          commit('eventsUpdate', { eventIndex, newTask });
+          console.log(task);
+          console.log(eventIndex);
           return true;
         }).catch(error => {
           return error;
