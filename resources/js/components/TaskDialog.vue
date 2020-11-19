@@ -6,17 +6,12 @@
         <v-text-field v-model="task.title" :counter="20"></v-text-field
         >{{ task.title }}
       </v-card-text>
-      <!-- <v-card-text>
-        <v-text-field v-model="newtask.title" :counter="20"></v-text-field
-        >{{ newtask.title }}
-      </v-card-text>
- -->
       <v-card-text>
         <v-menu
           ref="menu"
           v-model="menu"
           :close-on-content-click="false"
-          :return-value.sync="task.date"
+          :return-value.sync="task"
           transition="scale-transition"
           offset-y
           min-width="290px"
@@ -30,31 +25,53 @@
               outlined
             >
               <v-icon left>mdi-calendar-today</v-icon>
-              {{ task.date }}
+              {{ task.deadline }}
             </v-chip>
           </template>
-          <v-date-picker v-model="task.date" no-title scrollable>
+          <v-date-picker v-model="task.deadline" no-title scrollable>
             <v-spacer></v-spacer>
             <v-btn text color="primary" @click="menu = false">Cancel</v-btn>
-            <v-btn text color="primary" @click="$refs.menu.save(task.date)"
+            <v-btn text color="primary" @click="$refs.menu.save(task.deadline)"
               >OK</v-btn
             >
           </v-date-picker>
         </v-menu>
-
-        <!-- <v-chip
-          class="mr-2"
-          color="primary"
-          outlined
-          @click="date"
-          v-model="task.date"
+        <v-menu
+          v-model="projectMenu"
+          :close-on-content-click="false"
+          :nudge-width="200"
+          offset-x
         >
-          <v-icon left>mdi-calendar-today</v-icon>
-          {{ task.date }}
-        </v-chip> -->
-        <v-chip class="mr-2" color="green" outlined @click="editProject">
-          {{ projectName }}
-        </v-chip>
+          <template v-slot:activator="{ on, attrs }">
+            <v-chip
+              class="mr-2"
+              color="green"
+              outlined
+              v-bind="attrs"
+              v-on="on"
+              v-model="task.project_id"
+            >
+              {{ projectName }}
+            </v-chip>
+          </template>
+          <v-card>
+            <v-list>
+              <v-list-item v-for="(list, index) in this.projectLists">
+                <v-list-item-title @click="handleSaveProjectId(list.id)">
+                  {{ list.project }}
+                </v-list-item-title>
+              </v-list-item>
+            </v-list>
+          </v-card>
+        </v-menu>
+        <!-- <v-autocomplete
+          v-model="values"
+          :items="this.projectLists.project"
+          dense
+          chips
+          small-chips
+          label="Outlined"
+        ></v-autocomplete> -->
       </v-card-text>
       <v-card-actions>
         <v-btn color="blue darken-1" text @click="close">キャンセル</v-btn>
@@ -79,9 +96,12 @@ export default {
     end: null,
     inputTitle: "",
     menu: false,
+    projectMenu: false,
     projectName: "",
     projectLists: [],
     task: {},
+    list: {},
+    values: null,
   }),
   props: {
     dialogTitle: {
@@ -95,18 +115,22 @@ export default {
     ...mapActions("task", ["fetchTasks", "creatTask", "delete", "update"]),
     open(date, taskData) {
       this.taskDialog = true;
-      this.task.date = date;
       if (taskData) {
         this.task = Object.assign({}, taskData);
       }
+      this.task.deadline = date;
       if (!this.task.project_id) {
         this.projectName = "インボックス";
       } else {
-        for (let i in this.projectLists) {
-          if (this.task.project_id == this.projectLists[i].id) {
-            this.projectName = this.projectLists[i].project;
-          }
-        }
+        // for (let i in this.projectLists) {
+        //   if (this.task.project_id == this.projectLists[i].id) {
+        //     this.projectName = this.projectLists[i].project;
+        //   }
+        // }
+        const projectId = this.projectLists.find(
+          ({ id }) => id === this.task.project_id
+        );
+        this.projectName = projectId.project;
       }
     },
     close() {
@@ -114,7 +138,13 @@ export default {
       this.$emit("close");
       this.task = {};
     },
-    editProject() {},
+    handleSaveProjectId(projectId) {
+      this.task.project_id = projectId;
+      const project = this.projectLists.find(({ id }) => id === projectId);
+      this.projectName = project.project;
+      console.log(this.task.project_id);
+      console.log(this.projectName);
+    },
     // プロジェクトの一覧を取得
     getProjectList() {
       axios.get("http://localhost:8001/api/project/show").then((res) => {
@@ -125,9 +155,16 @@ export default {
     //保存
     handleSave(task) {
       if (task.id) {
+        this.update(task).then((res) => {
+          if (res === true) {
+            alert("タスクを更新しました");
+          } else {
+            alert("タスクの更新に失敗しました");
+          }
+        });
         console.log("idあり");
       } else {
-        this.creatTask(this.task).then((res) => {
+        this.creatTask(task).then((res) => {
           if (res === true) {
             alert("タスクを追加しました");
           } else {
