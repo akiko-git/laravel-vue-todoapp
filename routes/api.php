@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\Route;
 // Route::get('/todolist', 'TaskController@index')->name('task');
 Route::get('/todolist/store', 'TaskController@store')->name('store');
 Route::post('/todolist/form', 'TaskController@form')->name('form');
+Route::patch('/todolist/edit{id}', 'TaskController@edit');
 Route::delete('/todolist/delete{id}', 'TaskController@destroy');
 Route::get('/project/show', 'ProjectController@show');
 Route::post('/project/regist', 'ProjectController@regist');
