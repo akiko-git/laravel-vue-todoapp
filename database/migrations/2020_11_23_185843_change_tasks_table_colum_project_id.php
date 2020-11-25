@@ -16,7 +16,7 @@ class ChangeTasksTableColumProjectId extends Migration
         Schema::table('tasks', function (Blueprint $table) {
             $table->dropColumn('text');
             $table->integer('status')->nullable(false)->default(1)->change();
-            $table->foreignId('project_id')->nullable(false)->default(0)->change();
+            $table->foreignId('project_id')->nullable(false)->default(0)->constrained()->onDelete('cascade')->change();
         });
     }
 
