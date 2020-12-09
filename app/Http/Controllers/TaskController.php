@@ -2,39 +2,41 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use App\Task;
 
 class TaskController extends Controller
 {
-		// public function index(){
-		// 	$tasks = Task::all();
-		// 	//dd($tasks->toArray());
-		// 	//return view('todolist.index')->with('tasks',$tasks);
-		// 	dd($tasks);
-		// 	$tasks = json_encode($tasks);
-		// 	return view('todolist.index')->with('tasks',$tasks);
-		// 	//return response()->json(['tasks'=>$tasks]);
-		// }
-
+		public function __construct(){
+			$this->middleware('auth:sanctum');
+			// $this->middleware('auth');
+		}
+		
     //タスク一覧表示
 		public function store(){
 			$tasks = Task::all();
-			//dd($tasks);
-			return response()->json(['getlist'=>$tasks]);
+			// dd($tasks);
+			$user = Auth::user();
+		// 	$isLogin = "";
+		// 	if (Auth::check()) {
+		// 		$isLogin =  "ログインOK";
+		// }
+
+			return response()->json(['getlist'=>$tasks,'user'=>$user]);
 		}
 
     //タスク登録
 		public function form(Request $request){
-			//dd($request->toArray());
+			// dd($request->toArray());
 			$tasks = new Task;
 			$tasks->title = $request->title;
-			$tasks->text = $request->text;
 			$tasks->deadline = $request->deadline;
+			$tasks->status = $request->status;
 			if($request->project_id){
 				$tasks->project_id = $request->project_id;
 			}
-			// $res = $request->addTask;
 			$tasks->save();
 			return response()->json(['success'=>$tasks]);
 		}
@@ -44,9 +46,12 @@ class TaskController extends Controller
 			$task = Task::find($id);
 			if($task){
 				$task->title = $request->title;
-				$task->text = $request->text;
 				$task->deadline = $request->deadline;
-				$task->project_id = $request->project_id;
+				if($request->project_id == null){
+					$task->project_id = null;
+				}else{
+					$task->project_id = $request->project_id;
+				}
 			}
 			$task->save();
 

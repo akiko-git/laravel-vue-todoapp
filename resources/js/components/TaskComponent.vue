@@ -1,6 +1,5 @@
 <template>
   <div class="list">
-    <!-- <div>{{ projectId }}</div> -->
     <ComingSoon v-if="type == 'comingSoon'" :taskList="getTasks"></ComingSoon>
     <v-card
       class="mx-auto"
@@ -10,9 +9,6 @@
       v-if="displayList(task)"
     >
       <v-card-title>{{ task.title }}</v-card-title>
-      <v-card-text class="pb-2">
-        <pre class="mb-0">{{ task.text }}</pre>
-      </v-card-text>
       <v-card-actions>
         <v-card-text class="pt-2 px-2">期限：{{ task.deadline }}</v-card-text>
         <v-btn icon>
@@ -23,29 +19,15 @@
         </v-btn>
       </v-card-actions>
     </v-card>
+    <p>{{ user.name }}</p>
+    <div>
+      <v-btn color="red" @click="logout">LOGOUT</v-btn>
+    </div>
+
     <DeleteTask
       :deleteData="deleteTask"
       :visible.sync="deleteDialog"
     ></DeleteTask>
-    <!-- <v-dialog v-model="deleteDialog" persistent max-width="300">
-      <v-card>
-        <v-card-title>削除確認</v-card-title>
-        <v-card-text
-          >{{ deleteTask.title }}を削除してもよろしいですか？</v-card-text
-        >
-        <v-card-actions>
-          <v-btn color="green darken-1" text @click="deleteDialog = false"
-            >キャンセル</v-btn
-          >
-          <v-btn
-            color="green darken-1"
-            text
-            @click="handlDeleteTask(deleteTask)"
-            >削除</v-btn
-          >
-        </v-card-actions>
-      </v-card>
-    </v-dialog> -->
     <AddTask
       :projectId="projectId"
       :deadline="time"
@@ -66,17 +48,13 @@ export default {
     ComingSoon,
     DeleteTask,
   },
-  data: () => ({
-    deleteDialog: false,
-    deleteTask: {},
-  }),
-  // data() {
-  //   return {
-  //     // lists: [],
-  //     deleteDialog: false,
-  //     deleteTask: {},
-  //   };
-  // },
+  data() {
+    return {
+      user: "",
+      deleteDialog: false,
+      deleteTask: {},
+    };
+  },
   methods: {
     ...mapActions("task", ["fetchTasks", "creatTask"]),
     //表示するタスク一覧
@@ -111,6 +89,18 @@ export default {
     //     });
     //   this.deleteDialog = false;
     // },
+    logout() {
+      axios
+        .get("/api/logout")
+        .then((res) => {
+          console.log(res);
+          localStorage.removeItem("auth");
+          this.$router.push("/login");
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    },
   },
   computed: {
     ...mapState({
@@ -127,16 +117,23 @@ export default {
     type: function () {
       return this.category;
     },
-    ...mapGetters("task", ["getTasks"]),
+    ...mapGetters("task", ["getTasks", "getUser"]),
   },
   created() {
-    this.fetchTasks();
-    this.$vuetify.lang = {
-      t: () => {},
-    };
+    // this.fetchTasks();
+    // this.$vuetify.lang = {
+    //   t: () => {},
+    // };
     this.$vuetify.theme = { dark: false };
   },
-  mounted() {},
+  mounted() {
+    this.fetchTasks();
+    console.log("getUser");
+    console.log(this.getUser);
+    axios.get("/api/user").then((response) => {
+      this.user = response.data;
+    });
+  },
 };
 </script>
 <style>
