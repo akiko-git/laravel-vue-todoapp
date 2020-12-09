@@ -14,8 +14,10 @@ import store from './store/index';
 import 'vuetify/dist/vuetify.min.css';
 import 'material-design-icons-iconfont/dist/material-design-icons.css';
 import '@mdi/font/css/materialdesignicons.css';
+import ja from 'vuetify/es5/locale/ja.js'
 import axios from "axios";
 import App from "./App.vue";
+import _ from 'lodash';
 Vue.use(Vuetify);
 
 
@@ -42,7 +44,12 @@ const app = new Vue({
 	el: '#app',
 	router,
 	store,
-	vuetify: new Vuetify(),
+	vuetify: new Vuetify({
+		lang: {
+			locales: { ja },
+			current: 'ja',
+		},
+	}),
 	components: { App },
 	template: '<App />'
 });
