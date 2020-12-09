@@ -1,24 +1,24 @@
 <template>
   <div class="list">
     <ComingSoon v-if="type == 'comingSoon'" :taskList="getTasks"></ComingSoon>
-    <v-card
-      class="mx-auto"
-      color="#E8EAF6"
-      max-width="790"
-      v-for="task in getTasks"
-      v-if="displayList(task)"
-    >
-      <v-card-title>{{ task.title }}</v-card-title>
-      <v-card-actions>
-        <v-card-text class="pt-2 px-2">期限：{{ task.deadline }}</v-card-text>
-        <v-btn icon>
-          <v-icon>mdi-pencil</v-icon>
-        </v-btn>
-        <v-btn icon @click="deleteConfirm(task)">
-          <v-icon>mdi-trash-can</v-icon>
-        </v-btn>
-      </v-card-actions>
-    </v-card>
+    <v-row>
+      <v-col cols="12" v-for="task in getTasks" v-if="displayList(task)">
+        <v-card class="mx-auto" color="light-blue lighten-5" max-width="790">
+          <v-card-title>{{ task.title }}</v-card-title>
+          <v-card-actions>
+            <v-card-text class="pt-2 px-2"
+              >期限：{{ task.deadline }}</v-card-text
+            >
+            <v-btn icon @click="openTaskDialogAsEdit(task)">
+              <v-icon>mdi-pencil</v-icon>
+            </v-btn>
+            <v-btn icon @click="deleteConfirm(task)">
+              <v-icon>mdi-trash-can</v-icon>
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-col>
+    </v-row>
     <p>{{ user.name }}</p>
     <div>
       <v-btn color="red" @click="logout">LOGOUT</v-btn>
@@ -34,6 +34,11 @@
       :category="type"
       v-if="type != 'comingSoon'"
     ></AddTask>
+    <TaskDialog
+      ref="taskEditDialog"
+      dialogTitle="編集"
+      dialogBtnText="保存"
+    ></TaskDialog>
   </div>
 </template>
 
@@ -41,12 +46,14 @@
 import AddTask from "./AddTask";
 import ComingSoon from "./ComingSoon";
 import DeleteTask from "./DeleteTask";
+import TaskDialog from "./TaskDialog";
 import { mapActions, mapState, mapGetters } from "vuex";
 export default {
   components: {
     AddTask,
     ComingSoon,
     DeleteTask,
+    TaskDialog,
   },
   data() {
     return {
@@ -79,16 +86,9 @@ export default {
       this.deleteDialog = true;
       this.deleteTask = task;
     },
-    // deleteTask: function (id) {
-    //   axios
-    //     .delete("http://localhost:8001/api/todolist/delete" + id)
-    //     .then((res) => {
-    //       this.$store.commit("task/fetchTasks");
-    //       //this.lists.splice(res.data.success);
-    //       // this.getList();
-    //     });
-    //   this.deleteDialog = false;
-    // },
+    openTaskDialogAsEdit(task) {
+      this.$refs.taskEditDialog.open(task.deadline, task);
+    },
     logout() {
       axios
         .get("/api/logout")
