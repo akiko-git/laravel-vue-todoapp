@@ -7,6 +7,10 @@ use App\Project;
 
 class ProjectController extends Controller
 {
+    public function __construct(){
+        $this->middleware('auth:sanctum');
+    }
+
     //データ一覧表示
     public function show(){
         $projects = Project::all();
