@@ -3,7 +3,8 @@ import Router from 'vue-router'
 
 import TaskComponent from './components/TaskComponent.vue';
 import LoginComponent from './components/LoginComponent.vue';
-// import NotFoundComponent from './components/NotFoundComponent.vue';
+import RegistComponent from './components/RegistComponent.vue';
+import NotFoundComponent from './components/NotFoundComponent.vue';
 
 Vue.use(Router)
 
@@ -22,10 +23,16 @@ const router = new Router({
             component: LoginComponent,
             meta: { title: 'ログイン' },
         },
-        // {
-        //     path: '*',
-        //     component: NotFoundComponent,
-        // }
+        {
+            path: '/regist',
+            name: 'regist',
+            component: RegistComponent,
+            meta: { title: '新規登録' },
+        },
+        {
+            path: '*',
+            component: NotFoundComponent,
+        }
     ],
 })
 
