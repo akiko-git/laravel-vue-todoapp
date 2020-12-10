@@ -1,15 +1,15 @@
 <template>
-		<v-app>
-			<Header />
-			<v-main>
-				<v-container class="fill-height" fluid>
-					<v-layout justify-center align-center wrap>
-						<RouterView />
-					</v-layout>	
-				</v-container>
-			</v-main>
-		<Footer />
-		</v-app>
+  <v-app>
+    <Header v-if="$route.name === 'task'" />
+    <v-main>
+      <v-container class="fill-height" fluid>
+        <v-layout justify-center align-center wrap>
+          <RouterView />
+        </v-layout>
+      </v-container>
+    </v-main>
+    <Footer v-if="$route.name === 'task'" />
+  </v-app>
 </template>
 
 <script>
@@ -17,10 +17,9 @@ import Header from "./components/Header";
 import Footer from "./components/Footer";
 
 export default {
-	components: {
-		Header,
-		Footer,
-	},
-
-}
+  components: {
+    Header,
+    Footer,
+  },
+};
 </script>

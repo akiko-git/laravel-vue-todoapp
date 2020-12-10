@@ -145,6 +145,31 @@
     <v-app-bar class="indigo" fixed app dark clipped-left>
       <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
       <v-toolbar-title>Title</v-toolbar-title>
+      <v-spacer></v-spacer>
+      <v-menu bottom right offset-y nudgeWidth="200">
+        <template v-slot:activator="{ on, attrs }">
+          <v-avatar color="white" size="30" v-bind="attrs" v-on="on">
+            <v-icon color="blue">mdi-account</v-icon>
+          </v-avatar>
+        </template>
+        <v-card>
+          <v-list>
+            <v-list-item>
+              <v-list-item-icon>
+                <v-icon>mdi-cog</v-icon>
+              </v-list-item-icon>
+              <v-list-item-title>設定</v-list-item-title>
+            </v-list-item>
+            <v-divider inset></v-divider>
+            <v-list-item>
+              <v-list-item-icon>
+                <v-icon>mdi-logout</v-icon>
+              </v-list-item-icon>
+              <v-list-item-title>logout</v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </v-card>
+      </v-menu>
     </v-app-bar>
   </div>
 </template>
@@ -272,6 +297,12 @@ export default {
     }
   }
   .v-list-item__icon:hover + .v-list-item__title {
+    color: #e53935;
+  }
+  .theme--light.v-icon {
+    color: #bdbdbd;
+  }
+  .theme--light.v-icon.iconHover {
     color: #e53935;
   }
 }
