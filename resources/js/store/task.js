@@ -8,6 +8,7 @@ const task = {
     tasks: [],
     events: [],
     colors: ["blue", "indigo", "cyan", "green", "pink", "orange"],
+    user: [],
   },
   mutations: {
     sideMenuSelect(state, { projectId, deadline, category }) {
@@ -31,6 +32,10 @@ const task = {
           color: state.colors[Math.floor((state.colors.length) * Math.random())],
         });
       }
+    },
+    setUser(state, user) {
+      state.user = user;
+      // console.log(state.tasks);
     },
     add(state, task) {
       state.tasks.push(task);
@@ -90,6 +95,9 @@ const task = {
     getEvents(state) {
       return state.events;
     },
+    getUser(state) {
+      return state.user;
+    },
   },
 
   actions: {
@@ -98,6 +106,7 @@ const task = {
       await axios.get("http://localhost:8001/api/todolist/store").then((res) => {
         commit('setData', res.data.getlist);
         commit('setEventsData');
+        commit('setUser', res.data.user);
         // console.log('storeだよ');
       }, (error) => {
         console.log(error);
