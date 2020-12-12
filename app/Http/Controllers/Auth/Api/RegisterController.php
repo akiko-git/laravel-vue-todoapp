@@ -16,13 +16,6 @@ class RegisterController extends Controller
     use RegistersUsers;
 
     /**
-     * Where to redirect users after registration.
-     *
-     * @var string
-     */
-    protected $redirectTo = '/login';
-
-    /**
      * Create a new controller instance.
      *
      * @return void
@@ -33,10 +26,10 @@ class RegisterController extends Controller
     }
 
     public function register(Request $request){
-        $test = $this->validator($request->all())->validate();
-        return response()->json($test);
-
+        $this->validator($request->all())->validate();
+        $this->create($request->all());
     }
+
 
 
     /**
@@ -50,7 +43,7 @@ class RegisterController extends Controller
         return Validator::make($data, [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'password' => ['required', 'string', 'min:8'],
         ]);
     }
 
