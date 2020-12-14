@@ -19,10 +19,7 @@
         </v-card>
       </v-col>
     </v-row>
-    <p>{{ user.name }}</p>
-    <div>
-      <v-btn color="red" @click="logout">LOGOUT</v-btn>
-    </div>
+    <p>{{ getUser.name }}</p>
 
     <DeleteTask
       :deleteData="deleteTask"
@@ -57,13 +54,12 @@ export default {
   },
   data() {
     return {
-      user: "",
       deleteDialog: false,
       deleteTask: {},
     };
   },
   methods: {
-    ...mapActions("task", ["fetchTasks", "creatTask"]),
+    ...mapActions("task", ["fetchTasks", "creatTask", "fetchUser"]),
     //表示するタスク一覧
     displayList: function (task) {
       if (this.type == "inbox") {
@@ -89,18 +85,6 @@ export default {
     openTaskDialogAsEdit(task) {
       this.$refs.taskEditDialog.open(task.deadline, task);
     },
-    logout() {
-      axios
-        .get("/api/logout")
-        .then((res) => {
-          console.log(res);
-          localStorage.removeItem("auth");
-          this.$router.push("/login");
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    },
   },
   computed: {
     ...mapState({
@@ -120,19 +104,14 @@ export default {
     ...mapGetters("task", ["getTasks", "getUser"]),
   },
   created() {
-    // this.fetchTasks();
-    // this.$vuetify.lang = {
-    //   t: () => {},
-    // };
     this.$vuetify.theme = { dark: false };
   },
   mounted() {
     this.fetchTasks();
-    console.log("getUser");
-    console.log(this.getUser);
-    axios.get("/api/user").then((response) => {
-      this.user = response.data;
-    });
+    this.fetchUser();
+    // axios.get("/api/user").then((response) => {
+    //   this.user = response.data;
+    // });
   },
 };
 </script>
