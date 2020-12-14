@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Project;
+use Illuminate\Support\Facades\Auth;
 
 class ProjectController extends Controller
 {
@@ -11,16 +12,17 @@ class ProjectController extends Controller
         $this->middleware('auth:sanctum');
     }
 
-    //データ一覧表示
+    //プロジェクト一覧表示
     public function show(){
-        $projects = Project::all();
+        $projects = Project::where('user_id',Auth::id())->get();
         //dd($projects);
         return response()->json(['getProjectList'=>$projects]);
     }
 
-    //データ登録
+    //プロジェクト登録
     public function regist(Request $request){
         $projects = new Project;
+        $projects->user_id = Auth::id();
         $projects->project = $request->addProject;
         $projects->save();
         return response()->json(['regist'=>$projects]);

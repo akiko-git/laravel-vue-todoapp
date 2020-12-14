@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use App\Task;
 
 class TaskController extends Controller
@@ -16,7 +17,7 @@ class TaskController extends Controller
 		
     //タスク一覧表示
 		public function store(){
-			$tasks = Task::all();
+			$tasks = Task::where('user_id',Auth::id())->get();
 			// dd($tasks);
 			$user = Auth::user();
 		// 	$isLogin = "";
@@ -31,11 +32,14 @@ class TaskController extends Controller
 		public function form(Request $request){
 			// dd($request->toArray());
 			$tasks = new Task;
+			$tasks->user_id = Auth::id();
 			$tasks->title = $request->title;
 			$tasks->deadline = $request->deadline;
 			$tasks->status = $request->status;
 			if($request->project_id){
 				$tasks->project_id = $request->project_id;
+			}else{
+				$tasks->inbox_flag = true;
 			}
 			$tasks->save();
 			return response()->json(['success'=>$tasks]);
@@ -49,6 +53,7 @@ class TaskController extends Controller
 				$task->deadline = $request->deadline;
 				if($request->project_id == null){
 					$task->project_id = null;
+					$task->inbox_flag = true;
 				}else{
 					$task->project_id = $request->project_id;
 				}
