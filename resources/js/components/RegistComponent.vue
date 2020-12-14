@@ -56,17 +56,16 @@ export default {
           console.log("成功した時");
           this.$router.push("/login");
           console.log(response);
-          // this.$router.push("/");
         })
         .catch((error) => {
-          // Object.keys(error.response.data.errors).forEach((key) => {
-          //   this.errors[key] = true;
-          //   this.messages[key] = error.response.data.errors[key][0];
-          // });
-          Object.keys(error.response.data.errors).map((key) => {
+          Object.keys(error.response.data.errors).forEach((key) => {
             this.errors[key] = true;
             this.messages[key] = error.response.data.errors[key][0];
           });
+          // Object.keys(error.response.data.errors).map((key) => {
+          //   this.errors[key] = true;
+          //   this.messages[key] = error.response.data.errors[key][0];
+          // });
           console.log("エラーがある時");
           console.log(this.errors);
           console.log(error.response);

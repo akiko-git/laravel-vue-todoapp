@@ -154,14 +154,14 @@
         </template>
         <v-card>
           <v-list>
-            <v-list-item>
+            <v-list-item dense>
               <v-list-item-icon>
                 <v-icon>mdi-cog</v-icon>
               </v-list-item-icon>
               <v-list-item-title>設定</v-list-item-title>
             </v-list-item>
-            <v-divider inset></v-divider>
-            <v-list-item>
+            <v-divider></v-divider>
+            <v-list-item dense link @click="logout">
               <v-list-item-icon>
                 <v-icon>mdi-logout</v-icon>
               </v-list-item-icon>
@@ -263,6 +263,19 @@ export default {
     editDialogClose() {
       this.isPush = false;
       this.MenuContentClick = false;
+    },
+    //ログアウト
+    logout() {
+      axios
+        .post("/api/logout")
+        .then((res) => {
+          console.log(res);
+          localStorage.removeItem("auth");
+          this.$router.push("/login");
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     },
   },
   components: {

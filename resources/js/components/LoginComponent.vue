@@ -36,7 +36,7 @@ export default {
           .then((response) => {
             console.log(response);
             localStorage.setItem("auth", "ture");
-            this.$router.push("/");
+            this.$router.push("/task");
           })
           .catch((error) => {
             this.errors = error.response.data.errors;
