@@ -35,7 +35,6 @@ const task = {
     },
     setUser(state, user) {
       state.user = user;
-      // console.log(state.tasks);
     },
     add(state, task) {
       state.tasks.push(task);
@@ -89,6 +88,7 @@ const task = {
 
   getters: {
     getTasks(state) {
+      console.log("state.tasks");
       console.log(state.tasks);
       return state.tasks;
     },
@@ -101,12 +101,21 @@ const task = {
   },
 
   actions: {
+    //ユーザーの取得
+    async fetchUser({ commit }) {
+      await axios.get("/api/user").then((res) => {
+        commit('setUser', res.data);
+        console.log(res.data);
+      }, (error) => {
+        console.log(error);
+      });
+    },
+
     //全データロード
     async fetchTasks({ commit }) {
       await axios.get("http://localhost:8001/api/todolist/store").then((res) => {
         commit('setData', res.data.getlist);
         commit('setEventsData');
-        commit('setUser', res.data.user);
         // console.log('storeだよ');
       }, (error) => {
         console.log(error);
