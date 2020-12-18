@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <Header v-if="$route.name === 'task'" />
+    <Header v-if="$route.name === 'task' || $route.name === 'calendar'" />
     <v-main>
       <v-container class="fill-height" fluid>
         <v-layout justify-center align-center wrap>
