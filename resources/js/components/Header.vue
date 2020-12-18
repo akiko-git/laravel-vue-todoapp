@@ -3,30 +3,25 @@
     <v-navigation-drawer v-model="drawer" app clipped>
       <v-list>
         <v-list-item
-          link
-          :class="{ active: isActive === 'inbox' }"
-          @click="registTaskStore(null, 'inbox'), change('inbox')"
+          :to="{
+            name: 'task',
+            query: { type: encodeURIComponent(JSON.stringify('inbox')) },
+          }"
+          :exact="true"
+          @click="change('inbox')"
         >
           <v-list-item-icon>
             <v-icon>mdi-package-variant</v-icon>
           </v-list-item-icon>
           <v-list-item-title>インボックス</v-list-item-title>
         </v-list-item>
-        <v-list-item
-          link
-          :class="{ active: isActive === 'today' }"
-          @click="registTaskStore(null, 'today'), change('today')"
-        >
+        <v-list-item to="/task" :exact="true" @click="change('today')">
           <v-list-item-icon>
             <v-icon>mdi-calendar-today</v-icon>
           </v-list-item-icon>
           <v-list-item-title>今日</v-list-item-title>
         </v-list-item>
-        <v-list-item
-          link
-          :class="{ active: isActive === 'comingSoon' }"
-          @click="registTaskStore(null, 'comingSoon'), change('comingSoon')"
-        >
+        <v-list-item to="/calendar" @click="change('comingSoon')">
           <v-list-item-icon>
             <v-icon>mdi-calendar-month</v-icon>
           </v-list-item-icon>
@@ -49,11 +44,24 @@
           </template>
           <v-list-item
             v-for="(projectList, index) in projectLists"
-            link
             :class="{ active: isActive === projectList.id }"
-            @click="registTaskStore(projectList.id), change(projectList.id)"
+            @click="change(projectList.id)"
           >
-            <v-list-item-title>{{ projectList.project }}</v-list-item-title>
+            <router-link
+              :to="{
+                name: 'task',
+                query: {
+                  type: encodeURIComponent(JSON.stringify('project')),
+                  id: encodeURIComponent(JSON.stringify(projectList.id)),
+                },
+              }"
+              :exact="true"
+              class="router-link"
+            >
+              <v-list-item-content>
+                <v-list-item-title>{{ projectList.project }}</v-list-item-title>
+              </v-list-item-content>
+            </router-link>
             <v-menu
               bottom
               right
@@ -62,7 +70,9 @@
               :value="MenuContentClick"
             >
               <template v-slot:activator="{ on, attrs }">
-                <v-icon v-bind="attrs" v-on="on" small>fas fa-list</v-icon>
+                <v-list-item-icon v-bind="attrs" v-on="on" event="">
+                  <v-icon small>fas fa-list</v-icon>
+                </v-list-item-icon>
               </template>
               <v-list>
                 <ProjectDialog
@@ -176,7 +186,12 @@
 
 <script>
 import moment from "moment";
+import ProjectDialog from "./ProjectDialog";
+import { mapActions, mapState, mapGetters } from "vuex";
 export default {
+  components: {
+    ProjectDialog,
+  },
   data: () => ({
     drawer: null,
     hoverFlag: false,
@@ -192,33 +207,17 @@ export default {
     isActive: "today",
   }),
   methods: {
+    ...mapActions("task", [
+      "fetchTasks",
+      "fetchProjects",
+      "creatTask",
+      "fetchUser",
+    ]),
     mouseOverAction() {
       this.hoverFlag = true;
     },
     mouseLeaveAction() {
       this.hoverFlag = false;
-    },
-    //taskストアにプロジェクトキーを登録
-    registTaskStore(id, category) {
-      if (category == "today") {
-        this.$store.commit("task/sideMenuSelect", {
-          projectId: null,
-          deadline: moment().format("YYYY-MM-DD"),
-          category: category,
-        });
-      } else if (category == "comingSoon") {
-        this.$store.commit("task/sideMenuSelect", {
-          projectId: null,
-          deadline: moment().format("YYYY-MM-DD"),
-          category: category,
-        });
-      } else {
-        this.$store.commit("task/sideMenuSelect", {
-          projectId: id,
-          deadline: moment().format("YYYY-MM-DD"),
-          category: category,
-        });
-      }
     },
     change(clickRow) {
       this.isActive = clickRow;
@@ -239,6 +238,7 @@ export default {
     getProjectList() {
       axios.get("http://localhost:8001/api/project/show").then((res) => {
         this.projectLists = res.data.getProjectList;
+        console.log("プロジェクトを一覧表示");
         console.log(res);
         return true;
       });
@@ -278,17 +278,20 @@ export default {
         });
     },
   },
-  components: {
-    ProjectDialog: () => import("./ProjectDialog"),
-  },
   created() {
+    this.fetchTasks();
     this.getProjectList();
-    this.registTaskStore(null, "today");
+    // this.registTaskStore(null, "today");
     console.log(moment().format("YYYY-MM-DD"));
   },
 };
 </script>
 <style lang="scss" scoped>
+.v-list {
+  a:hover {
+    text-decoration: none;
+  }
+}
 .v-list-item__content {
   padding-left: 20px;
 }
@@ -323,7 +326,10 @@ export default {
 .iconHover {
   color: #e53935;
 }
-.active {
-  background: #f6f6f6;
+.router-link {
+  display: contents;
 }
+// .active {
+//   background: #f6f6f6;
+// }
 </style>

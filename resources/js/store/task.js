@@ -9,14 +9,16 @@ const task = {
     events: [],
     colors: ["blue", "indigo", "cyan", "green", "pink", "orange"],
     user: [],
+    projects: [],
   },
   mutations: {
-    sideMenuSelect(state, { projectId, deadline, category }) {
-      state.deadline = deadline;
-      state.category = category;
-      state.projectId = projectId;
-    },
-    setData(state, tasks) {
+    // sideMenuSelect(state, { projectId, deadline, category }) {
+    //   state.deadline = deadline;
+    //   state.category = category;
+    //   state.projectId = projectId;
+    // },
+
+    setTask(state, tasks) {
       state.tasks = tasks;
       // console.log(state.tasks);
     },
@@ -33,9 +35,13 @@ const task = {
         });
       }
     },
+    setProject(state, projects) {
+      state.projects = projects;
+    },
     setUser(state, user) {
       state.user = user;
     },
+    //タスクの新規登録
     add(state, task) {
       state.tasks.push(task);
       state.events.push({
@@ -48,6 +54,7 @@ const task = {
         color: state.colors[Math.floor((state.colors.length) * Math.random())],
       });
     },
+    //タスクの削除
     delete(state, taskid) {
       const index = state.tasks.findIndex((o) => {
         return o.id === taskid;
@@ -62,6 +69,7 @@ const task = {
         return false;
       }
     },
+    //タスクのアップデート
     update(state, { task, newTask }) {
       Object.assign(task, newTask);
     },
@@ -95,6 +103,11 @@ const task = {
     getEvents(state) {
       return state.events;
     },
+    getProjects(state) {
+      console.log("state.projects");
+      console.log(state.projects);
+      return state.projects;
+    },
     getUser(state) {
       return state.user;
     },
@@ -111,10 +124,10 @@ const task = {
       });
     },
 
-    //全データロード
+    //全タスクデータロード
     async fetchTasks({ commit }) {
       await axios.get("http://localhost:8001/api/todolist/store").then((res) => {
-        commit('setData', res.data.getlist);
+        commit('setTask', res.data.getlist);
         commit('setEventsData');
         // console.log('storeだよ');
       }, (error) => {
@@ -179,6 +192,18 @@ const task = {
           return error;
         });
     },
+
+    //全プロジェクトデータをロード
+    async fetchProjects({ commit }) {
+      await axios.get("http://localhost:8001/api/project/show").then((res) => {
+        commit('setProjects', res.data.getProjectList);
+        console.log("プロジェクトを一覧表示");
+        console.log(res);
+      }, (error) => {
+        console.log(error);
+      });
+    },
+
 
   },
 };

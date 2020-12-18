@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 
 import TaskComponent from './components/TaskComponent.vue';
+import CalendarComponent from './components/CalendarComponent.vue';
 import LoginComponent from './components/LoginComponent.vue';
 import RegistComponent from './components/RegistComponent.vue';
 import NotFoundComponent from './components/NotFoundComponent.vue';
@@ -12,10 +13,16 @@ const router = new Router({
     mode: 'history',
     routes: [
         {
-            path: '/',
+            path: '/task',
             name: 'task',
             component: TaskComponent,
             meta: { title: 'タスク一覧', requiresAuth: true },
+        },
+        {
+            path: '/calendar',
+            name: 'calendar',
+            component: CalendarComponent,
+            meta: { title: '近日予定', requiresAuth: true },
         },
         {
             path: '/login',
@@ -28,6 +35,11 @@ const router = new Router({
             name: 'regist',
             component: RegistComponent,
             meta: { title: '新規登録' },
+        },
+        //リダイレクト
+        {
+            path: '/',
+            redirect: '/task'
         },
         {
             path: '*',
