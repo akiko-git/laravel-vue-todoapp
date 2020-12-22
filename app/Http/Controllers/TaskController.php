@@ -37,9 +37,10 @@ class TaskController extends Controller
 			$tasks->deadline = $request->deadline;
 			$tasks->status = $request->status;
 			if($request->project_id){
+				$tasks->inbox_flag = 0;
 				$tasks->project_id = $request->project_id;
 			}else{
-				$tasks->inbox_flag = true;
+				$tasks->inbox_flag = 1;
 			}
 			$tasks->save();
 			return response()->json(['success'=>$tasks]);
