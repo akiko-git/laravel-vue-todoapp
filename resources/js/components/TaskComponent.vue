@@ -5,7 +5,7 @@
     </v-col>
     <v-col cols="11">{{ type }}</v-col>
     <v-col cols="11">{{ projectId }}</v-col>
-    <v-col cols="11" v-for="task in getTasks" v-if="displayList(task)">
+    <v-col cols="11" v-for="task in filteredTasks">
       <v-card class="mx-auto" color="light-blue lighten-5" max-width="790">
         <v-card-title>{{ task.title }}</v-card-title>
         <v-card-actions>
@@ -26,7 +26,7 @@
         :deleteData="deleteTask"
         :visible.sync="deleteDialog"
       ></DeleteTask>
-      <AddTask :projectId="projectId" :category="type"></AddTask>
+      <AddTask :projectId="projectId" :type="type"></AddTask>
       <TaskDialog
         ref="taskEditDialog"
         dialogTitle="編集"
@@ -59,38 +59,7 @@ export default {
   },
   methods: {
     ...mapActions("task", ["fetchTasks", "creatTask", "fetchUser"]),
-    //表示するタスク一覧
-    displayList: function (task) {
-      if (this.type == "inbox") {
-        if (task.inbox_flag === 1) {
-          return true;
-        }
-      } else if (this.type == "project") {
-        if (this.projectId == task.project_id) {
-          return true;
-        }
-      } else {
-        if (this.today == task.deadline) {
-          return true;
-        }
-      }
-      // if (this.type == "inbox") {
-      //   if (task.project_id == null) {
-      //     return true;
-      //   }
-      // } else if (this.type == "today") {
-      //   if (this.time == task.deadline) {
-      //     return true;
-      //   }
-      // } else {
-      //   if (task.project_id != null && task.project_id == this.projectId) {
-      //     return true;
-      //   } else {
-      //     return false;
-      //   }
-      // }
-    },
-    deleteConfirm: function (task) {
+    deleteConfirm(task) {
       this.deleteDialog = true;
       this.deleteTask = task;
     },
@@ -99,36 +68,32 @@ export default {
     },
   },
   computed: {
-    // ...mapState({
-    //   postId: (state) => state.task.projectId,
-    //   deadline: (state) => state.task.deadline,
-    //   category: (state) => state.task.category,
-    // }),
-    // projectId: function () {
-    //   return this.postId;
-    // },
-    // time: function () {
-    //   return this.deadline;
-    // },
-    // type: function () {
-    //   return this.category;
-    // },
     ...mapGetters("task", ["getTasks", "getUser"]),
-    type: function () {
+    type() {
       if (this.$route.query.type) {
         return JSON.parse(decodeURIComponent(this.$route.query.type));
       }
     },
-    projectId: function () {
+    projectId() {
       if (this.$route.query.id) {
         return JSON.parse(decodeURIComponent(this.$route.query.id));
+      }
+    },
+    //表示するタスクをフィルター
+    filteredTasks() {
+      if (this.type === "inbox") {
+        return this.getTasks.filter((task) => task.inbox_flag === 1);
+      } else if (this.type === "project") {
+        return this.getTasks.filter(
+          (task) => this.projectId == task.project_id
+        );
+      } else {
+        return this.getTasks.filter((task) => this.today == task.deadline);
       }
     },
   },
   created() {
     this.$vuetify.theme = { dark: false };
-    console.log("today");
-    console.log(this.today);
   },
   mounted() {
     this.fetchUser();
