@@ -8,20 +8,19 @@
             query: { type: encodeURIComponent(JSON.stringify('inbox')) },
           }"
           :exact="true"
-          @click="change('inbox')"
         >
           <v-list-item-icon>
             <v-icon>mdi-package-variant</v-icon>
           </v-list-item-icon>
           <v-list-item-title>インボックス</v-list-item-title>
         </v-list-item>
-        <v-list-item to="/task" :exact="true" @click="change('today')">
+        <v-list-item to="/task" :exact="true">
           <v-list-item-icon>
             <v-icon>mdi-calendar-today</v-icon>
           </v-list-item-icon>
           <v-list-item-title>今日</v-list-item-title>
         </v-list-item>
-        <v-list-item to="/calendar" @click="change('comingSoon')">
+        <v-list-item to="/calendar">
           <v-list-item-icon>
             <v-icon>mdi-calendar-month</v-icon>
           </v-list-item-icon>
@@ -31,21 +30,24 @@
           @mouseover="mouseOverAction"
           @mouseleave="mouseLeaveAction"
           v-bind:disabled="isPush"
+          :value="isProjectList"
+          color="black"
         >
           <template v-slot:activator>
-            <ProjectDialog @close="isPush = false" @regist="getProjectList">
+            <ProjectDialog @close="isPush = false">
               <template v-slot:activator="{ on }">
                 <v-icon v-on="on" small @click="pushIcon()">fas fa-plus</v-icon>
               </template>
             </ProjectDialog>
-            <v-list-item-content>
+            <v-list-item-content class="pl-4">
               <v-list-item-title>プロジェクト</v-list-item-title>
             </v-list-item-content>
           </template>
           <v-list-item
-            v-for="(projectList, index) in projectLists"
-            :class="{ active: isActive === projectList.id }"
-            @click="change(projectList.id)"
+            v-for="(projectList, index) in getProjects"
+            :class="{ active: projectId === projectList.id }"
+            class="projectList"
+            color="black"
           >
             <router-link
               :to="{
@@ -59,35 +61,39 @@
               class="router-link"
             >
               <v-list-item-content>
-                <v-list-item-title>{{ projectList.project }}</v-list-item-title>
+                <v-list-item-title class="textWrapping">{{
+                  projectList.project
+                }}</v-list-item-title>
               </v-list-item-content>
             </router-link>
             <v-menu
               bottom
               right
               offset-x
-              :close-on-content-click="false"
-              :value="MenuContentClick"
+              :close-on-content-click="closeContent"
+              nudge-right="40"
+              right
+              v-model="projectMenu[index]"
             >
               <template v-slot:activator="{ on, attrs }">
-                <v-list-item-icon v-bind="attrs" v-on="on" event="">
+                <v-list-item-icon
+                  v-bind="attrs"
+                  v-on="on"
+                  event=""
+                  @click="projectListClick(index)"
+                >
                   <v-icon small>fas fa-list</v-icon>
                 </v-list-item-icon>
               </template>
               <v-list>
                 <ProjectDialog
-                  @regist="getProjectList"
                   :dialogTitle="edit"
                   :dialogBtnText="editBtn"
                   :editData="projectList"
-                  @close="editDialogClose"
+                  @close="editDialogClose, closeProjectMenu(index)"
                 >
                   <template v-slot:activator="{ on }">
-                    <v-list-item
-                      v-on="on"
-                      small
-                      @click="pushIcon(), (MenuContentClick = true)"
-                    >
+                    <v-list-item v-on="on" small>
                       <v-list-item-icon class="mr-2">
                         <v-icon>mdi-pencil</v-icon>
                       </v-list-item-icon>
@@ -106,7 +112,7 @@
               </v-list>
             </v-menu>
           </v-list-item>
-          <ProjectDialog @regist="getProjectList" @close="isPush = false">
+          <ProjectDialog @close="isPush = false">
             <template v-slot:activator="{ on }">
               <v-list-item
                 v-on="on"
@@ -197,30 +203,24 @@ export default {
     hoverFlag: false,
     isPush: false,
     MenuContentClick: false,
-    projectLists: [],
+    // projectLists: [],
     deleteProjectDialog: false,
     deleteProjectID: null,
     deleteProjectText: null,
     edit: "編集",
     editBtn: "保存",
     isHover: false,
-    isActive: "today",
+    closeContent: false,
+    projectMenu: {},
   }),
   methods: {
-    ...mapActions("task", [
-      "fetchTasks",
-      "fetchProjects",
-      "creatTask",
-      "fetchUser",
-    ]),
+    ...mapActions("task", ["fetchTasks", "creatTask", "fetchUser"]),
+    ...mapActions("project", ["fetchProjects"]),
     mouseOverAction() {
       this.hoverFlag = true;
     },
     mouseLeaveAction() {
       this.hoverFlag = false;
-    },
-    change(clickRow) {
-      this.isActive = clickRow;
     },
     pushIcon() {
       this.isPush = true;
@@ -234,15 +234,15 @@ export default {
       }
     },
 
-    // プロジェクトを一覧表示
-    getProjectList() {
-      axios.get("http://localhost:8001/api/project/show").then((res) => {
-        this.projectLists = res.data.getProjectList;
-        console.log("プロジェクトを一覧表示");
-        console.log(res);
-        return true;
-      });
-    },
+    // // プロジェクトを一覧表示
+    // getProjectList() {
+    //   axios.get("http://localhost:8001/api/project/show").then((res) => {
+    //     this.projectLists = res.data.getProjectList;
+    //     console.log("プロジェクトを一覧表示");
+    //     console.log(res);
+    //     return true;
+    //   });
+    // },
     //プロジェクト削除
     deleteConfirm(id, project) {
       this.deleteProjectDialog = true;
@@ -262,7 +262,14 @@ export default {
     //編集画面を閉じた時の処理
     editDialogClose() {
       this.isPush = false;
-      this.MenuContentClick = false;
+    },
+    projectListClick(index) {
+      this.closeContent = false;
+      this.projectMenu[index] = true;
+    },
+    closeProjectMenu(index) {
+      this.closeContent = true;
+      this.projectMenu[index] = false;
     },
     //ログアウト
     logout() {
@@ -280,9 +287,42 @@ export default {
   },
   created() {
     this.fetchTasks();
-    this.getProjectList();
+    this.fetchProjects();
+    this.fetchUser();
     // this.registTaskStore(null, "today");
-    console.log(moment().format("YYYY-MM-DD"));
+    // console.log(moment().format("YYYY-MM-DD"));
+  },
+  computed: {
+    ...mapGetters("project", ["getProjects"]),
+    type() {
+      if (this.$route.query.type) {
+        return JSON.parse(decodeURIComponent(this.$route.query.type));
+      }
+    },
+    projectId() {
+      if (this.$route.query.id) {
+        return JSON.parse(decodeURIComponent(this.$route.query.id));
+      }
+    },
+    //プロジェクトリストの表示制御
+    isProjectList() {
+      if (this.type === "project") {
+        const project = this.getProjects.filter(
+          (project) => project.id === this.projectId
+        );
+        if (project) {
+          return true;
+        } else {
+          return false;
+        }
+      }
+    },
+  },
+
+  mounted() {
+    // for (let i = 0; i < this.getProjects; i++) {
+    //   this.menu[i] = false;
+    // }
   },
 };
 </script>
@@ -292,12 +332,20 @@ export default {
     text-decoration: none;
   }
 }
-.v-list-item__content {
-  padding-left: 20px;
+// .v-list-item__content {
+//   padding-left: 20px;
+// }
+.projectList {
+  &:hover {
+    background: #f6f6f6;
+  }
+  &.active:hover {
+    background: #e5e5e5;
+  }
 }
 
 .v-icon.v-icon.v-icon--link {
-  padding-left: 5px;
+  padding-left: 3px;
 }
 
 .textColor {
@@ -326,10 +374,18 @@ export default {
 .iconHover {
   color: #e53935;
 }
+// .projetcListColor {
+//   color: #ccc;
+// }
+.textWrapping {
+  text-overflow: inherit;
+  white-space: unset;
+}
 .router-link {
+  color: #000000;
   display: contents;
 }
-// .active {
-//   background: #f6f6f6;
-// }
+.active {
+  background: #e5e5e5;
+}
 </style>
