@@ -8,12 +8,9 @@
       <v-divider></v-divider>
       <form @submit.prevent="submitProject()">
         <v-card-text>
-          <v-text-field
-            v-model="addProject"
-            :counter="20"
-            @keydown.enter.exact="submitProject()"
-          ></v-text-field>
+          <v-text-field v-model="project.project" :counter="20"></v-text-field>
         </v-card-text>
+        {{ project.project }}
         <v-card-actions>
           <v-btn color="blue darken-1" text @click="close">キャンセル</v-btn>
           <v-btn type="submit" color="blue darken-1" text :disabled="addText">{{
@@ -25,10 +22,12 @@
   </v-dialog>
 </template>
 <script>
+import { mapState, mapActions, mapGetters } from "vuex";
 export default {
   data: () => ({
     dialog: false,
-    addProject: "",
+    // addProject: "",
+    project: {},
   }),
   props: {
     dialogTitle: {
@@ -43,10 +42,15 @@ export default {
     editData: Object,
   },
   methods: {
+    ...mapActions("project", ["createProject", "updateProject"]),
     open() {
+      if (this.editData) {
+        this.project = Object.assign({}, this.editData);
+      }
       this.dialog = true;
     },
     close() {
+      this.project = {};
       this.dialog = false;
       this.$emit("close");
     },
@@ -58,51 +62,73 @@ export default {
         this.registProject();
       }
     },
-    getEditData() {
-      if (this.editData) {
-        this.addProject = this.editData.project;
-      }
-    },
+    // pushEnter(event) {
+    //   if (event.isComposing || event.keyCode === 229) {
+    //     return;
+    //   }
+    //   this.submitProject();
+    // },
+    // getEditData() {
+    //   if (this.editData) {
+    //     this.project.project = this.editData.project;
+    //     this.project.id = this.editData.id;
+    //   }
+    // },
     //プロジェクトを登録
     registProject() {
-      const dataform = new FormData();
-      dataform.append("addProject", this.addProject);
-      axios
-        .post("http://localhost:8001/api/project/regist", dataform)
-        .then((res) => {
-          console.log(res.data.regist);
-          //this.lists.push(res.data.regist);
-        });
+      this.createProject(this.project).then((res) => {
+        if (res === true) {
+          console.log("追加したプロジェクト");
+          console.log(this.project);
+          alert("プロジェクトを追加しました");
+        } else {
+          alert("プロジェクトの追加に失敗しました");
+        }
+      });
       this.close();
-      this.$emit("regist");
-      this.addProject = null;
+      // const dataform = new FormData();
+      // dataform.append("addProject", this.addProject);
+      // axios
+      //   .post("http://localhost:8001/api/project/regist", dataform)
+      //   .then((res) => {
+      //     console.log(res.data.regist);
+      //     //this.lists.push(res.data.regist);
+      //   });
+      // this.close();
+      // // this.$emit("regist");
+      // this.addProject = null;
     },
     //プロジェクトを編集
     editProject() {
-      const dataform = new FormData();
-      dataform.append("addProject", this.addProject);
-      dataform.append("editId", this.editData.id);
-      axios
-        .post("http://localhost:8001/api/project/edit", dataform)
-        .then((res) => {
-          console.log(res.data.edit);
-        });
+      this.updateProject(this.project).then((res) => {
+        if (res === true) {
+          console.log("編集したプロジェクト");
+          console.log(this.project);
+          alert("プロジェクトを更新しました");
+        } else {
+          alert("プロジェクトの更新に失敗しました");
+        }
+      });
       this.close();
-      this.$emit("regist");
-      //this.addProject = null;
+      // const dataform = new FormData();
+      // dataform.append("addProject", this.addProject);
+      // dataform.append("editId", this.editData.id);
+      // axios
+      //   .post("http://localhost:8001/api/project/edit", dataform)
+      //   .then((res) => {
+      //     console.log(res.data.edit);
+      //   });
     },
   },
   computed: {
     addText() {
-      if (this.addProject) {
+      if (this.project.project) {
         return false;
       } else {
         return true;
       }
     },
   },
-  created() {
-    this.getEditData();
-  },
+  created() {},
 };
 </script>

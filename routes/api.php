@@ -45,5 +45,5 @@ Route::patch('/todolist/edit{id}', 'TaskController@edit');
 Route::delete('/todolist/delete{id}', 'TaskController@destroy');
 Route::get('/project/show', 'ProjectController@show');
 Route::post('/project/regist', 'ProjectController@regist');
-Route::post('/project/edit', 'ProjectController@edit');
+Route::patch('/project/edit{id}', 'ProjectController@edit');
 Route::delete('/project/delete{id}', 'ProjectController@destroy');

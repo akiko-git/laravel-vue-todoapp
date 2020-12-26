@@ -23,16 +23,18 @@ class ProjectController extends Controller
     public function regist(Request $request){
         $projects = new Project;
         $projects->user_id = Auth::id();
-        $projects->project = $request->addProject;
+        $projects->project = $request->project;
         $projects->save();
         return response()->json(['regist'=>$projects]);
     }
 
     //プロジェクトの編集
-    public function edit(Request $request){
-        $project = Project::find($request->editId);
+    public function edit(Request $request,$id){
+        $project = Project::find($id);
 		if($project){
-			$project->project = $request->input('addProject');
+			$project->project = $request->project;
+        }else{
+            return;
         }
         $project->save();
         return response()->json(['edit'=>$project]);

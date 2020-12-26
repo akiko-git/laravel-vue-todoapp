@@ -215,7 +215,7 @@ export default {
   }),
   methods: {
     ...mapActions("task", ["fetchTasks", "creatTask", "fetchUser"]),
-    ...mapActions("project", ["fetchProjects"]),
+    ...mapActions("project", ["fetchProjects", "deleteProjectData"]),
     mouseOverAction() {
       this.hoverFlag = true;
     },
@@ -250,13 +250,20 @@ export default {
       this.deleteProjectText = project;
     },
     deleteProject(id) {
-      axios
-        .delete("http://localhost:8001/api/project/delete" + id)
-        .then((res) => {
-          //this.lists.splice(res.data.success);
-          this.getProjectList();
-          console.log(res.data.delete);
-        });
+      this.deleteProjectData(id).then((res) => {
+        if (res === true) {
+          alert("プロジェクトを削除しました");
+        } else {
+          alert("プロジェクトの削除に失敗しました");
+        }
+      });
+      // axios
+      //   .delete("http://localhost:8001/api/project/delete" + id)
+      //   .then((res) => {
+      //     //this.lists.splice(res.data.success);
+      //     // this.getProjectList();
+      //     console.log(res.data.delete);
+      //   });
       this.deleteProjectDialog = false;
     },
     //編集画面を閉じた時の処理
