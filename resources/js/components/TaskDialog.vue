@@ -9,9 +9,9 @@
       <v-card-text>
         <v-menu
           ref="menu"
-          v-model="menu"
+          v-model="dateMenu"
           :close-on-content-click="false"
-          :return-value.sync="task"
+          :return-value.sync="task.deadline"
           transition="scale-transition"
           offset-y
           min-width="290px"
@@ -30,7 +30,7 @@
           </template>
           <v-date-picker v-model="task.deadline" no-title scrollable>
             <v-spacer></v-spacer>
-            <v-btn text color="primary" @click="menu = false">Cancel</v-btn>
+            <v-btn text color="primary" @click="dateMenu = false">Cancel</v-btn>
             <v-btn text color="primary" @click="$refs.menu.save(task.deadline)"
               >OK</v-btn
             >
@@ -56,7 +56,12 @@
           </template>
           <v-card>
             <v-list>
-              <v-list-item v-for="(list, index) in this.projectLists">
+              <v-list-item link>
+                <v-list-item-title @click="handleSaveProjectId()">
+                  インボックス
+                </v-list-item-title>
+              </v-list-item>
+              <v-list-item link v-for="(list, index) in this.getProjects">
                 <v-list-item-title @click="handleSaveProjectId(list.id)">
                   {{ list.project }}
                 </v-list-item-title>
@@ -64,14 +69,6 @@
             </v-list>
           </v-card>
         </v-menu>
-        <!-- <v-autocomplete
-          v-model="values"
-          :items="this.projectLists.project"
-          dense
-          chips
-          small-chips
-          label="Outlined"
-        ></v-autocomplete> -->
       </v-card-text>
       <v-card-actions>
         <v-btn color="blue darken-1" text @click="close">キャンセル</v-btn>
@@ -94,14 +91,12 @@ export default {
     taskDialog: false,
     start: null,
     end: null,
-    inputTitle: "",
-    menu: false,
+    dateMenu: false,
     projectMenu: false,
     projectName: "",
-    projectLists: [],
+    // projectLists: [],
     task: {},
     list: {},
-    values: null,
   }),
   props: {
     dialogTitle: {
@@ -117,40 +112,43 @@ export default {
       this.taskDialog = true;
       if (taskData) {
         this.task = Object.assign({}, taskData);
-      }
-      this.task.deadline = date;
-      if (!this.task.project_id) {
-        this.projectName = "インボックス";
+        if (!this.task.project_id) {
+          this.task.inbox_flag = 1;
+          this.projectName = "インボックス";
+        } else {
+          const projectId = this.getProjects.find(
+            ({ id }) => id === this.task.project_id
+          );
+          this.task.inbox_flag = 0;
+          this.projectName = projectId.project;
+          console.log("projectId.project");
+          console.log(projectId.project);
+        }
       } else {
-        // for (let i in this.projectLists) {
-        //   if (this.task.project_id == this.projectLists[i].id) {
-        //     this.projectName = this.projectLists[i].project;
-        //   }
-        // }
-        const projectId = this.projectLists.find(
-          ({ id }) => id === this.task.project_id
-        );
-        this.projectName = projectId.project;
+        this.task.inbox_flag = 1;
+        this.task.project_id = {};
+        this.projectName = "インボックス";
+      }
+      if (date) {
+        this.task.deadline = date;
       }
     },
     close() {
-      this.taskDialog = false;
-      this.$emit("close");
       this.task = {};
+      this.taskDialog = false;
+      this.$emit("editDialogClose");
     },
     handleSaveProjectId(projectId) {
       this.task.project_id = projectId;
-      const project = this.projectLists.find(({ id }) => id === projectId);
-      this.projectName = project.project;
-      console.log(this.task.project_id);
-      console.log(this.projectName);
-    },
-    // プロジェクトの一覧を取得
-    getProjectList() {
-      axios.get("http://localhost:8001/api/project/show").then((res) => {
-        this.projectLists = res.data.getProjectList;
-        return true;
-      });
+      if (projectId) {
+        const project = this.getProjects.find(({ id }) => id === projectId);
+        this.projectName = project.project;
+        this.task.inbox_flag = 0;
+      } else {
+        this.task.project_id = {};
+        this.task.inbox_flag = 1;
+        this.projectName = "インボックス";
+      }
     },
     //保存
     handleSave(task) {
@@ -162,7 +160,7 @@ export default {
             alert("タスクの更新に失敗しました");
           }
         });
-        console.log("idあり");
+        // console.log("idあり");
       } else {
         this.creatTask(task).then((res) => {
           if (res === true) {
@@ -171,11 +169,15 @@ export default {
             alert("タスクの追加に失敗しました");
           }
         });
-        console.log(this.task);
+        // console.log(this.task);
       }
+      console.log("タスク");
+      console.log(this.task);
+      this.close();
     },
   },
   computed: {
+    ...mapGetters("project", ["getProjects"]),
     activeSave() {
       if (this.task.title) {
         return false;
@@ -185,8 +187,6 @@ export default {
     },
   },
   mounted() {},
-  created() {
-    this.getProjectList();
-  },
+  created() {},
 };
 </script>

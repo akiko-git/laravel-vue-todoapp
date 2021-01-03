@@ -10,8 +10,8 @@
         <v-btn fab text small color="grey darken-2" @click="prev">
           <v-icon small> mdi-chevron-left </v-icon>
         </v-btn>
-        <v-toolbar-title v-if="$refs.calendar">
-          {{ $refs.calendar.title }}
+        <v-toolbar-title>
+          {{ calendarTitle }}
         </v-toolbar-title>
         <v-btn fab text small color="grey darken-2" @click="next">
           <v-icon small> mdi-chevron-right </v-icon>
@@ -46,21 +46,17 @@
           ref="calendar"
           v-model="focus"
           :type="type"
-          :events="events"
+          :events="filteredEvents"
           :event-color="getEventColor"
           @click:event="showEvent"
           @click:date="viewDay"
           @click:more="viewDay"
-          @change="updateRange"
           @click:day="openTaskDialogAsAdd"
+          @change="updateRange"
         ></v-calendar>
-        <div v-for="test in getTasks">
-          <p v-if="test.deadline === '2020-11-13'">{{ test.title }}</p>
-        </div>
         <v-menu
           v-model="selectedOpen"
           :close-on-content-click="false"
-          :close-on-click="false"
           :activator="selectedElement"
           offset-x
         >
@@ -86,7 +82,6 @@
           ref="taskEditDialog"
           dialogTitle="編集"
           dialogBtnText="保存"
-          @close="editDialogClose"
         ></TaskDialog>
         <DeleteTask
           :deleteData="deleteTask"
@@ -97,6 +92,7 @@
   </v-row>
 </template>
 <script>
+import moment from "moment";
 import { mapActions, mapState, mapGetters } from "vuex";
 import DeleteTask from "./DeleteTask";
 import TaskDialog from "./TaskDialog";
@@ -107,8 +103,8 @@ export default {
   },
 
   data: () => ({
-    today: "2020-05-21",
-    focus: "",
+    // today: "2020-05-21",
+    focus: moment().format("yyyy-MM-DD"),
     type: "month",
     typeToLabel: {
       month: "Month",
@@ -122,6 +118,7 @@ export default {
     colors: ["blue", "indigo", "cyan", "green", "pink", "orange"],
     deleteTask: {},
     deleteDialog: false,
+    // YMD: moment().format("yyyy-MM-DD"),
   }),
   methods: {
     ...mapActions("task", ["fetchTasks", "delete", "fetchEvents"]),
@@ -155,11 +152,11 @@ export default {
       this.$refs.calendar.next();
     },
     setToday() {
-      // console.log(this.focus);
-      this.focus = "";
+      this.focus = moment().format("yyyy-MM-DD");
     },
     updateRange({ start, end }) {
-      this.events = this.getEvents;
+      return this.filteredEvents;
+      // this.events = this.filteredEvents;
     },
     //タスクの追加
     openTaskDialogAsAdd({ date }) {
@@ -174,10 +171,6 @@ export default {
         this.selectedEvent.taskObj
       );
     },
-    //タスクの編集画面を閉じた時の処理
-    editDialogClose() {
-      this.selectedOpen = false;
-    },
     //タスクの削除
     deleteConfirm(task) {
       this.deleteDialog = true;
@@ -190,37 +183,18 @@ export default {
   props: {},
   computed: {
     ...mapGetters("task", ["getTasks", "getEvents"]),
+    filteredEvents() {
+      return this.getEvents.filter((task) => task.status === 1);
+    },
+    calendarTitle() {
+      return moment(this.focus).format("yyyy年 M月");
+    },
   },
   created() {
-    // this.events = this.events2;
+    this.events = this.filteredEvents;
   },
   mounted() {
     this.$refs.calendar.checkChange();
-    // console.log("storeのイベントの値");
-    // console.log(this.getEvents);
-    // for (let i in this.getTasks) {
-    //   if (this.taskList[i].project_id == null) {
-    //     this.currentProjectId = "null";
-    //   } else {
-    //     this.currentProjectId = this.taskList[i].project_id;
-    //   }
-    //   this.events.push({
-    //     name: this.getTasks[i].title,
-    //     start: this.getTasks[i].deadline,
-    //     end: this.getTasks[i].deadline,
-    //     color: this.colors[this.rnd(0, this.colors.length - 1)],
-    //     taskId: this.getTasks[i].id,
-    //     projectId: this.getTasks[i].project_id,
-    //     taskObj: this.getTasks[i],
-    //     timed: 2,
-    //   });
-    // }
-    // console.log("普通のイベントの値");
-    // console.log(this.events);
-    // console.log("カレンダーオブジェクト");
-    // console.log(this.$refs.calendar);
-    // console.log("カレンダータイトル");
-    // console.log(this.$refs.calendar.title);
   },
 };
 </script>

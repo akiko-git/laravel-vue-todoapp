@@ -26,14 +26,12 @@ import { mapState, mapActions, mapGetters } from "vuex";
 export default {
   data: () => ({
     dialog: false,
-    // addProject: "",
     project: {},
   }),
   props: {
     dialogTitle: {
       type: String,
       default: "追加",
-      //required: true,
     },
     dialogBtnText: {
       type: String,
@@ -62,62 +60,29 @@ export default {
         this.registProject();
       }
     },
-    // pushEnter(event) {
-    //   if (event.isComposing || event.keyCode === 229) {
-    //     return;
-    //   }
-    //   this.submitProject();
-    // },
-    // getEditData() {
-    //   if (this.editData) {
-    //     this.project.project = this.editData.project;
-    //     this.project.id = this.editData.id;
-    //   }
-    // },
     //プロジェクトを登録
     registProject() {
       this.createProject(this.project).then((res) => {
         if (res === true) {
-          console.log("追加したプロジェクト");
-          console.log(this.project);
           alert("プロジェクトを追加しました");
         } else {
           alert("プロジェクトの追加に失敗しました");
         }
       });
       this.close();
-      // const dataform = new FormData();
-      // dataform.append("addProject", this.addProject);
-      // axios
-      //   .post("http://localhost:8001/api/project/regist", dataform)
-      //   .then((res) => {
-      //     console.log(res.data.regist);
-      //     //this.lists.push(res.data.regist);
-      //   });
-      // this.close();
-      // // this.$emit("regist");
-      // this.addProject = null;
     },
     //プロジェクトを編集
     editProject() {
       this.updateProject(this.project).then((res) => {
         if (res === true) {
-          console.log("編集したプロジェクト");
-          console.log(this.project);
+          // console.log("編集したプロジェクト");
+          // console.log(this.project);
           alert("プロジェクトを更新しました");
         } else {
           alert("プロジェクトの更新に失敗しました");
         }
       });
       this.close();
-      // const dataform = new FormData();
-      // dataform.append("addProject", this.addProject);
-      // dataform.append("editId", this.editData.id);
-      // axios
-      //   .post("http://localhost:8001/api/project/edit", dataform)
-      //   .then((res) => {
-      //     console.log(res.data.edit);
-      //   });
     },
   },
   computed: {

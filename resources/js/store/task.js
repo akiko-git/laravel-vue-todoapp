@@ -12,12 +12,6 @@ const task = {
     projects: [],
   },
   mutations: {
-    // sideMenuSelect(state, { projectId, deadline, category }) {
-    //   state.deadline = deadline;
-    //   state.category = category;
-    //   state.projectId = projectId;
-    // },
-
     setTask(state, tasks) {
       state.tasks = tasks;
       // console.log(state.tasks);
@@ -30,19 +24,25 @@ const task = {
           end: state.tasks[i].deadline,
           taskId: state.tasks[i].id,
           projectId: state.tasks[i].project_id,
+          status: state.tasks[i].status,
           taskObj: state.tasks[i],
           color: state.colors[Math.floor((state.colors.length) * Math.random())],
         });
       }
+      console.log("setEventsData");
+      console.log(state.events);
     },
-    setProject(state, projects) {
-      state.projects = projects;
-    },
+    // setProjects(state, projects) {
+    //   state.projects = projects;
+    // },
     setUser(state, user) {
       state.user = user;
     },
     //タスクの新規登録
     add(state, task) {
+      if (typeof task.project_id == Boolean) {
+        task.project_id == null;
+      }
       state.tasks.push(task);
       state.events.push({
         name: task.title,
@@ -55,22 +55,16 @@ const task = {
       });
     },
     //タスクの削除
-    delete(state, taskid) {
-      const index = state.tasks.findIndex((o) => {
-        return o.id === taskid;
-      });
-      const eventIndex = state.events.findIndex((o) => {
-        return o.taskId === taskid;
-      });
-      if (index) {
-        state.tasks.splice(index);
-        state.events.splice(eventIndex);
-      } else {
-        return false;
-      }
+    delete(state, { taskIndex, eventIndex }) {
+      state.tasks.splice(taskIndex, 1);
+      state.events.splice(eventIndex, 1);
     },
     //タスクのアップデート
     update(state, { task, newTask }) {
+      if (typeof newTask.project_id == Boolean) {
+        newTask.project_id == null;
+      }
+
       Object.assign(task, newTask);
     },
 
@@ -81,32 +75,22 @@ const task = {
       eventIndex.projectId = newTask.project_id;
       eventIndex.taskObj = newTask;
     },
-
-    //タスクの新規登録
-    // creatTask(state, task) {
-    //   axios
-    //     .post("http://localhost:8001/api/todolist/form", task)
-    //     .then((res) => {
-    //       console.log(res.data.success);
-    //       state.tasks.push(res.data.success);
-    //     });
-    // },
+    //タスクの完了
+    updateStatus(state, { editStatusTask, editStatusEvent }) {
+      Object.assign(editStatusTask, { status: 2 });
+      Object.assign(editStatusEvent, { status: 2 });
+    }
 
   },
 
   getters: {
     getTasks(state) {
-      console.log("state.tasks");
-      console.log(state.tasks);
+      // console.log("state.tasks");
+      // console.log(state.tasks);
       return state.tasks;
     },
     getEvents(state) {
       return state.events;
-    },
-    getProjects(state) {
-      console.log("state.projects");
-      console.log(state.projects);
-      return state.projects;
     },
     getUser(state) {
       return state.user;
@@ -118,7 +102,7 @@ const task = {
     async fetchUser({ commit }) {
       await axios.get("/api/user").then((res) => {
         commit('setUser', res.data);
-        console.log(res.data);
+        // console.log(res.data);
       }, (error) => {
         console.log(error);
       });
@@ -134,16 +118,16 @@ const task = {
         console.log(error);
       });
     },
-    //カレンダー用データをロード
-    fetchEvents({ commit }, { tasks, colors }) {
-      commit('setEventsData', { tasks: tasks, colors: colors });
-    },
+    // //カレンダー用データをロード
+    // fetchEvents({ commit }, { tasks, colors }) {
+    //   commit('setEventsData', { tasks: tasks, colors: colors });
+    // },
     //新規登録
     async creatTask({ state, commit }, task) {
       return await axios
         .post("http://localhost:8001/api/todolist/form", task)
         .then((res) => {
-          console.log(res.data.success);
+          // console.log(res.data.success);
           commit('add', res.data.success);
           return true;
           // state.tasks.push(res.data.success);
@@ -152,17 +136,15 @@ const task = {
         });
     },
     //削除
-    async delete({ state, commit }, task) {
+    async delete({ state, commit }, { task, taskIndex, eventIndex }) {
       // const index = state.tasks.indexOf(task);
       return await axios
         .delete("http://localhost:8001/api/todolist/delete" + task.id)
         .then((res) => {
-          commit('delete', task.id);
+          commit('delete', { taskIndex, eventIndex });
           return true;
           //this.lists.splice(res.data.success);
           // this.getList();
-        }, (error) => {
-          console.log(error);
         }).catch(error => {
           return error;
         });
@@ -185,23 +167,26 @@ const task = {
         .then(res => {
           commit('update', { task, newTask });
           commit('eventsUpdate', { eventIndex, newTask });
-          console.log(task);
-          console.log(eventIndex);
+          // console.log(task);
+          // console.log(eventIndex);
           return true;
         }).catch(error => {
           return error;
         });
     },
 
-    //全プロジェクトデータをロード
-    async fetchProjects({ commit }) {
-      await axios.get("http://localhost:8001/api/project/show").then((res) => {
-        commit('setProjects', res.data.getProjectList);
-        console.log("プロジェクトを一覧表示");
-        console.log(res);
-      }, (error) => {
-        console.log(error);
-      });
+    //タスクの完了
+    async doneTask({ state, commit }, { editStatusTask, editStatusEvent }) {
+      return await axios
+        .patch("http://localhost:8001/api/todolist/doneTask", editStatusTask)
+        .then((res) => {
+          commit('updateStatus', { editStatusTask, editStatusEvent });
+          return true;
+          //this.lists.splice(res.data.success);
+          // this.getList();
+        }).catch(error => {
+          return error;
+        });
     },
 
 

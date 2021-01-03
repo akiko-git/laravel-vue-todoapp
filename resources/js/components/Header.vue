@@ -214,7 +214,7 @@ export default {
     projectMenu: {},
   }),
   methods: {
-    ...mapActions("task", ["fetchTasks", "creatTask", "fetchUser"]),
+    ...mapActions("task", ["fetchTasks", "fetchUser"]),
     ...mapActions("project", ["fetchProjects", "deleteProjectData"]),
     mouseOverAction() {
       this.hoverFlag = true;
@@ -234,15 +234,6 @@ export default {
       }
     },
 
-    // // プロジェクトを一覧表示
-    // getProjectList() {
-    //   axios.get("http://localhost:8001/api/project/show").then((res) => {
-    //     this.projectLists = res.data.getProjectList;
-    //     console.log("プロジェクトを一覧表示");
-    //     console.log(res);
-    //     return true;
-    //   });
-    // },
     //プロジェクト削除
     deleteConfirm(id, project) {
       this.deleteProjectDialog = true;
@@ -257,13 +248,6 @@ export default {
           alert("プロジェクトの削除に失敗しました");
         }
       });
-      // axios
-      //   .delete("http://localhost:8001/api/project/delete" + id)
-      //   .then((res) => {
-      //     //this.lists.splice(res.data.success);
-      //     // this.getProjectList();
-      //     console.log(res.data.delete);
-      //   });
       this.deleteProjectDialog = false;
     },
     //編集画面を閉じた時の処理
@@ -283,7 +267,7 @@ export default {
       axios
         .post("/api/logout")
         .then((res) => {
-          console.log(res);
+          // console.log(res);
           localStorage.removeItem("auth");
           this.$router.push("/login");
         })
@@ -296,8 +280,6 @@ export default {
     this.fetchTasks();
     this.fetchProjects();
     this.fetchUser();
-    // this.registTaskStore(null, "today");
-    // console.log(moment().format("YYYY-MM-DD"));
   },
   computed: {
     ...mapGetters("project", ["getProjects"]),
@@ -339,9 +321,6 @@ export default {
     text-decoration: none;
   }
 }
-// .v-list-item__content {
-//   padding-left: 20px;
-// }
 .projectList {
   &:hover {
     background: #f6f6f6;
@@ -381,9 +360,6 @@ export default {
 .iconHover {
   color: #e53935;
 }
-// .projetcListColor {
-//   color: #ccc;
-// }
 .textWrapping {
   text-overflow: inherit;
   white-space: unset;
