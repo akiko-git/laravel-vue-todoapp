@@ -35,8 +35,12 @@ class TaskController extends Controller
 			$tasks->user_id = Auth::id();
 			$tasks->title = $request->title;
 			$tasks->deadline = $request->deadline;
-			$tasks->status = $request->status;
-			if($request->project_id){
+			if($tasks->status){
+				$tasks->status = $request->status;
+			}else{
+				$tasks->status = 1;
+			}
+			if($request->project_id && is_array($request->project_id) === false){
 				$tasks->inbox_flag = 0;
 				$tasks->project_id = $request->project_id;
 			}else{
@@ -52,16 +56,34 @@ class TaskController extends Controller
 			if($task){
 				$task->title = $request->title;
 				$task->deadline = $request->deadline;
+				$task->status = $request->status;
 				if($request->project_id == null){
 					$task->project_id = null;
-					$task->inbox_flag = true;
+					$task->inbox_flag = 1;
 				}else{
 					$task->project_id = $request->project_id;
+					$task->inbox_flag = 0;
 				}
 			}
 			$task->save();
 
 			return response()->json(['success'=>$task]);
+		}
+
+		//タスクの完了
+		public function doneTask(Request $request){
+			$task = Task::find($request->id);
+			// dd($task);
+			if($task){
+				$task->status = 2;
+			}
+			$task->save();
+
+			return response()->json(['success'=>$task]);
+		}
+
+		public function test(Request $request){
+			return response()->json(['success'=>$request]);
 		}
 
 		//タスク削除
