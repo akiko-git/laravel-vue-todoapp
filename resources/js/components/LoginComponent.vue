@@ -6,14 +6,26 @@
         <v-text-field
           v-model="loginInfo.email"
           label="E-mail"
-          required
+          :error="errors.email"
+          :error-messages="messages.email"
+          @keydown="resetError('email')"
         ></v-text-field>
         <v-text-field
           v-model="loginInfo.password"
           label="パスワード"
-          required
+          :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
+          :type="show1 ? 'text' : 'password'"
+          :error="errors.password"
+          :error-messages="messages.password"
+          @click:append="show1 = !show1"
+          @keydown="resetError('password')"
         ></v-text-field>
-        <v-btn block color="warning" @click="login">ログイン</v-btn>
+        <div class="red--text mt-2" v-if="loginFailur">
+          メールアドレスまたはパスワードが違います
+        </div>
+        <v-btn block class="mt-6" color="warning" @click="login"
+          >ログイン</v-btn
+        >
         <p class="signUpText">アカウントをお持ちでない方</p>
         <v-btn link to="/regist" block color="light-blue" class="white--text"
           >Sign up</v-btn
@@ -26,7 +38,13 @@
 export default {
   data: () => ({
     loginInfo: {},
-    errors: {},
+    errors: {
+      email: false,
+      password: false,
+    },
+    messages: {},
+    loginFailur: false,
+    show1: false,
   }),
   methods: {
     login() {
@@ -34,16 +52,25 @@ export default {
         axios
           .post("/api/login", this.loginInfo)
           .then((response) => {
-            console.log(response);
+            // console.log(response);
             localStorage.setItem("auth", "ture");
             this.$router.push("/task");
           })
           .catch((error) => {
-            this.errors = error.response.data.errors;
-            console.log(error.response.data.errors);
-            console.log(error);
+            if (error.response.status == 401) {
+              this.loginFailur = true;
+            } else {
+              Object.keys(error.response.data.errors).forEach((key) => {
+                this.errors[key] = true;
+                this.messages[key] = error.response.data.errors[key][0];
+              });
+            }
           });
       });
+    },
+    resetError(item) {
+      this.errors[item] = false;
+      this.messages[item] = "";
     },
   },
 };
