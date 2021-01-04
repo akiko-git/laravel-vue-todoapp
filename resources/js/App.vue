@@ -8,7 +8,7 @@
         </v-layout>
       </v-container>
     </v-main>
-    <Footer v-if="$route.name === 'task'" />
+    <!-- <Footer v-if="$route.name === 'task'" /> -->
   </v-app>
 </template>
 
