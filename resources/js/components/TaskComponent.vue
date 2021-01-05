@@ -1,7 +1,17 @@
 <template>
-  <v-row justify="center" align-content="center" dens>
-    <v-col cols="11">{{ type }}</v-col>
-    <v-col cols="11">{{ projectId }}</v-col>
+  <!-- <v-container> -->
+  <v-row justify="center" align="start" class="mt-4" dens>
+    <!-- <v-col cols="11">{{ type }}</v-col> -->
+    <!-- <v-col cols="11">{{ projectId }}</v-col> -->
+    <!-- <v-col cols="11">{{ filterProjects.project }}</v-col> -->
+    <v-col
+      cols="10"
+      v-if="Object.keys(this.getProjects).length != 0 && this.type == 'project'"
+      ><h3>{{ filterProjects.project }}</h3></v-col
+    >
+    <v-col cols="10" v-if="this.type != 'project'"
+      ><h3>{{ headline }}</h3></v-col
+    >
     <v-col cols="11" v-for="(task, index) in filteredTasks">
       <v-card class="mx-auto" color="light-blue lighten-5" max-width="790">
         <v-card-title class="pa-2 pb-0">
@@ -48,6 +58,7 @@
       ></TaskDialog>
     </v-col>
   </v-row>
+  <!-- </v-container> -->
 </template>
 
 <script>
@@ -72,6 +83,7 @@ export default {
   },
   methods: {
     ...mapActions("task", ["fetchTasks", "creatTask", "update", "doneTask"]),
+    ...mapActions("project", ["fetchProjects"]),
     deleteConfirm(task) {
       this.deleteDialog = true;
       this.deleteTask = task;
@@ -107,6 +119,7 @@ export default {
   },
   computed: {
     ...mapGetters("task", ["getTasks", "getEvents", "getUser"]),
+    ...mapGetters("project", ["getProjects"]),
     type() {
       if (this.$route.query.type) {
         return JSON.parse(decodeURIComponent(this.$route.query.type));
@@ -117,10 +130,44 @@ export default {
         return JSON.parse(decodeURIComponent(this.$route.query.id));
       }
     },
+    filterProjects() {
+      if (this.projectId) {
+        return this.getProjects.find((o) => o.id == this.projectId);
+      }
+    },
+    headline() {
+      let title = "";
+      if (this.type == "inbox") {
+        title = "インボックス";
+      } else {
+        title = "今日";
+      }
+      return title;
+    },
+    // headline: {
+    //   get: function () {
+    //     return this.projectTitle;
+    //   },
+    //   set: function (newValue) {
+    //     var names = newValue.split(" ");
+    //     if (this.type == "inbox") {
+    //       this.projectTitle = "インボックス";
+    //     } else if (this.type == "project") {
+    //       this.projectLists = this.getProjects.find(
+    //         (o) => o.id == this.projectId
+    //       );
+    //       // const project = _.cloneDeep(
+    //       //   this.getProjects.filter((o) => o.id == this.projectId)[0]
+    //       // );
+    //     } else {
+    //       this.projectTitle = "今日";
+    //     }
+    //   },
+    // },
     //表示するタスクをフィルター
     filteredTasks() {
-      console.log("this.getTasks");
-      console.log(this.getTasks);
+      // console.log("this.getTasks");
+      // console.log(this.getTasks);
 
       if (this.type === "inbox") {
         return this.getTasks.filter(
@@ -138,9 +185,18 @@ export default {
     },
   },
   created() {
+    // this.fetchProjects();
+    // if (Object.keys(this.getProjects).length == 0) {
+    //   this.fetchProjects();
+    // }
+    // console.log(Object.keys(this.getProjects).length);
     this.$vuetify.theme = { dark: false };
   },
   mounted() {
+    console.log(this.getProjects);
+    console.log(this.filterProjects);
+    // console.log("this.filteredTasks");
+    // console.log(this.filteredTasks);
     // axios.get("/api/user").then((response) => {
     //   this.user = response.data;
     // });
@@ -148,9 +204,6 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-.list {
-  width: 80%;
-}
 .redio_text {
   position: relative;
   top: 2.5px;
