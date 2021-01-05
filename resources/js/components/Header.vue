@@ -160,7 +160,9 @@
     </v-navigation-drawer>
     <v-app-bar class="indigo" fixed app dark clipped-left>
       <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
-      <v-toolbar-title>Title</v-toolbar-title>
+      <v-btn icon to="/task" :exact="true" class="home">
+        <v-icon>mdi-home-outline</v-icon>
+      </v-btn>
       <v-spacer></v-spacer>
       <v-menu bottom right offset-y nudgeWidth="200">
         <template v-slot:activator="{ on, attrs }">
@@ -269,6 +271,7 @@ export default {
         .then((res) => {
           // console.log(res);
           localStorage.removeItem("auth");
+          this.$router.go(this.$router.currentRoute.path);
           this.$router.push("/login");
         })
         .catch((err) => {
@@ -370,5 +373,14 @@ export default {
 }
 .active {
   background: #e5e5e5;
+}
+.home {
+  &:hover {
+    text-decoration: none;
+    background-color: rgba(255, 255, 255, 0.08);
+  }
+  &:before {
+    background-color: transparent;
+  }
 }
 </style>
