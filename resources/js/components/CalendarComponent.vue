@@ -64,6 +64,9 @@
             <v-toolbar color="grey lighten-4" flat>
               <v-toolbar-title>{{ selectedEvent.name }}</v-toolbar-title>
               <v-spacer></v-spacer>
+              <v-btn icon @click="done(selectedEvent.taskId)">
+                <v-icon>mdi-check-outline</v-icon>
+              </v-btn>
               <v-btn icon @click="openTaskDialogAsEdit">
                 <v-icon>mdi-pencil</v-icon>
               </v-btn>
@@ -72,7 +75,7 @@
               </v-btn>
             </v-toolbar>
             <v-card-actions>
-              <v-btn text color="blue darken-1" @click="selectedOpen = false">
+              <v-btn text color="blue darken-1" @click="close">
                 キャンセル
               </v-btn>
             </v-card-actions>
@@ -118,10 +121,9 @@ export default {
     colors: ["blue", "indigo", "cyan", "green", "pink", "orange"],
     deleteTask: {},
     deleteDialog: false,
-    // YMD: moment().format("yyyy-MM-DD"),
   }),
   methods: {
-    ...mapActions("task", ["fetchTasks", "delete", "fetchEvents"]),
+    ...mapActions("task", ["fetchTasks", "delete", "fetchEvents", "doneTask"]),
     viewDay({ date }) {
       this.focus = date;
       this.type = "day";
@@ -171,6 +173,29 @@ export default {
         this.selectedEvent.taskObj
       );
     },
+    //タスクの完了
+    done(taskId) {
+      //ストアのタスクから取得
+      const editStatusTask = this.getTasks.find((o) => {
+        return o.id === taskId;
+      });
+      //ストアのイベントから取得
+      const editStatusEvent = this.getEvents.find((o) => {
+        return o.taskId === taskId;
+      });
+      if (editStatusTask && editStatusEvent) {
+        this.doneTask({ editStatusTask, editStatusEvent }).then((res) => {
+          if (res === true) {
+            alert("タスクを完了しました");
+          } else {
+            alert("タスクの完了に失敗しました");
+          }
+        });
+      } else {
+        alert("タスクの完了に失敗しました");
+      }
+      this.close();
+    },
     //タスクの削除
     deleteConfirm(task) {
       this.deleteDialog = true;
@@ -178,6 +203,9 @@ export default {
     },
     rnd(min, max) {
       return Math.floor((max - min + 1) * Math.random()) + min;
+    },
+    close() {
+      this.selectedOpen = false;
     },
   },
   props: {},
