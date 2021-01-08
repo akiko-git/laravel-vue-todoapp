@@ -38,26 +38,22 @@
             min-width="290px"
           >
             <template v-slot:activator="{ on, attrs }">
-              <!-- <v-text-field
-                v-model="task.deadline"
-                label="期限"
-                prepend-inner-icon="event"
-                readonly
-                v-bind="attrs"
-                v-on="on"
-              ></v-text-field> -->
               <v-chip
                 class="mr-2"
                 color="blue"
                 outlined
                 v-bind="attrs"
                 v-on="on"
-                v-model="task.deadline"
               >
                 {{ task.deadline }}
               </v-chip>
             </template>
-            <v-date-picker v-model="task.deadline" no-title scrollable>
+            <v-date-picker
+              v-model="task.deadline"
+              :day-format="(date) => new Date(date).getDate()"
+              no-title
+              scrollable
+            >
               <v-spacer></v-spacer>
               <v-btn text color="primary" @click="menu = false">Cancel</v-btn>
               <v-btn
@@ -85,7 +81,7 @@
             <v-card>
               <v-list>
                 <v-list-item link>
-                  <v-list-item-title @click="handleSaveProjectId(null)">
+                  <v-list-item-title @click="handleSaveProjectId()">
                     インボックス
                   </v-list-item-title>
                 </v-list-item>
@@ -108,7 +104,7 @@
             送信
           </v-btn>
           <v-btn outlined color="primary" @click="close">キャンセル</v-btn>
-          <div>{{ projectId }}<br />{{ type }}</div>
+          <!-- <div>{{ projectId }}<br />{{ type }}{{ task.project_id }}</div> -->
         </v-col>
       </v-row>
     </v-form>
@@ -134,9 +130,7 @@ export default {
       this.isActive = false;
       this.task.deadline = new Date().toISOString().substr(0, 10);
       this.task.status = 1;
-      // this.task["title"] = "";
       if (this.type === "project") {
-        // this.task.inbox_flag = false;
         if (this.projectId) {
           this.task.project_id = this.projectId;
           const getProject = this.getProjects.find(
@@ -145,9 +139,8 @@ export default {
           this.projectName = getProject.project;
         }
       } else {
-        // this.task.inbox_flag = true;
         this.projectName = "インボックス";
-        this.task.project_id = null;
+        this.task.project_id = {};
       }
     },
     close() {
@@ -162,16 +155,16 @@ export default {
       }
     },
     add() {
+      // console.log("追加したタスク");
+      // console.log(this.task);
       this.creatTask(this.task).then((res) => {
-        console.log("追加したタスク");
-        console.log(this.task);
         if (res === true) {
           alert("タスクを追加しました");
         } else {
           alert("タスクの追加に失敗しました");
         }
       });
-      this.isActive = true;
+      this.close();
     },
     handleSaveProjectId(setId) {
       if (setId) {
@@ -179,7 +172,7 @@ export default {
         const setProject = this.getProjects.find(({ id }) => id === setId);
         this.projectName = setProject.project;
       } else {
-        this.task.project_id = null;
+        this.task.project_id = {};
         this.projectName = "インボックス";
       }
     },
@@ -209,7 +202,6 @@ export default {
 </script>
 <style lang="scss" scoped>
 .addTask {
-  // width: 50%;
   margin-top: 20px;
   .isClick {
     display: block;
@@ -218,6 +210,7 @@ export default {
     text-decoration: underline;
   }
   &_form {
+    padding: 10px 0px;
     border: solid #000000 1px;
     width: 100%;
   }

@@ -172,6 +172,8 @@ export default {
         this.selectedEvent.start,
         this.selectedEvent.taskObj
       );
+      console.log("this.selectedEvent.taskObj");
+      console.log(this.selectedEvent.taskObj);
     },
     //タスクの完了
     done(taskId) {

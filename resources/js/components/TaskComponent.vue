@@ -144,26 +144,6 @@ export default {
       }
       return title;
     },
-    // headline: {
-    //   get: function () {
-    //     return this.projectTitle;
-    //   },
-    //   set: function (newValue) {
-    //     var names = newValue.split(" ");
-    //     if (this.type == "inbox") {
-    //       this.projectTitle = "インボックス";
-    //     } else if (this.type == "project") {
-    //       this.projectLists = this.getProjects.find(
-    //         (o) => o.id == this.projectId
-    //       );
-    //       // const project = _.cloneDeep(
-    //       //   this.getProjects.filter((o) => o.id == this.projectId)[0]
-    //       // );
-    //     } else {
-    //       this.projectTitle = "今日";
-    //     }
-    //   },
-    // },
     //表示するタスクをフィルター
     filteredTasks() {
       // console.log("this.getTasks");
@@ -185,18 +165,9 @@ export default {
     },
   },
   created() {
-    // this.fetchProjects();
-    // if (Object.keys(this.getProjects).length == 0) {
-    //   this.fetchProjects();
-    // }
-    // console.log(Object.keys(this.getProjects).length);
     this.$vuetify.theme = { dark: false };
   },
   mounted() {
-    console.log(this.getProjects);
-    console.log(this.filterProjects);
-    // console.log("this.filteredTasks");
-    // console.log(this.filteredTasks);
     // axios.get("/api/user").then((response) => {
     //   this.user = response.data;
     // });

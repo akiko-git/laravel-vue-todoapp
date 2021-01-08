@@ -36,12 +36,7 @@
             >
           </v-date-picker>
         </v-menu>
-        <v-menu
-          v-model="projectMenu"
-          :close-on-content-click="false"
-          :nudge-width="200"
-          offset-x
-        >
+        <v-menu v-model="projectMenu" :nudge-width="200" offset-x>
           <template v-slot:activator="{ on, attrs }">
             <v-chip
               class="mr-2"
@@ -94,7 +89,6 @@ export default {
     dateMenu: false,
     projectMenu: false,
     projectName: "",
-    // projectLists: [],
     task: {},
     list: {},
   }),
@@ -108,39 +102,43 @@ export default {
   },
   methods: {
     ...mapActions("task", ["fetchTasks", "creatTask", "delete", "update"]),
+    //ダイアログオープン時の処理
     open(date, taskData) {
       this.taskDialog = true;
       if (taskData) {
         this.task = Object.assign({}, taskData);
-        if (!this.task.project_id) {
-          this.task.inbox_flag = 1;
+        if (this.task.inbox_flag == 1) {
           this.projectName = "インボックス";
+          this.task.project_id = {};
         } else {
           const projectId = this.getProjects.find(
             ({ id }) => id === this.task.project_id
           );
-          this.task.inbox_flag = 0;
-          this.projectName = projectId.project;
-          console.log("projectId.project");
-          console.log(projectId.project);
+          // this.task.inbox_flag = 0;
+          if (projectId) {
+            this.projectName = projectId.project;
+            console.log("projectId.project");
+            console.log(projectId.project);
+          }
         }
       } else {
         this.task.inbox_flag = 1;
-        this.task.project_id = {};
         this.projectName = "インボックス";
       }
       if (date) {
         this.task.deadline = date;
       }
     },
+    //タスクダイアログを閉じる
     close() {
       this.task = {};
       this.taskDialog = false;
       this.$emit("editDialogClose");
     },
+    //選択したプロジェクトの保存
     handleSaveProjectId(projectId) {
-      this.task.project_id = projectId;
       if (projectId) {
+        this.task.project_id = projectId;
         const project = this.getProjects.find(({ id }) => id === projectId);
         this.projectName = project.project;
         this.task.inbox_flag = 0;
@@ -148,9 +146,12 @@ export default {
         this.task.project_id = {};
         this.task.inbox_flag = 1;
         this.projectName = "インボックス";
+        console.log("インボックスだよ");
       }
+      console.log("handleSaveProjectId");
+      console.log(this.task);
     },
-    //保存
+    //タスクの追加・更新
     handleSave(task) {
       if (task.id) {
         this.update(task).then((res) => {
@@ -162,13 +163,22 @@ export default {
         });
         // console.log("idあり");
       } else {
-        this.creatTask(task).then((res) => {
-          if (res === true) {
-            alert("タスクを追加しました");
-          } else {
-            alert("タスクの追加に失敗しました");
+        this.creatTask(task).then(
+          (res) => {
+            if (res.status === 200) {
+              alert("タスクを追加しました");
+            }
+            // else {
+            //   console.log("res");
+            //   console.log(res);
+            //   alert("タスクの追加に失敗しました");
+            // }
+          },
+          (error) => {
+            console.log("errorだよ");
+            console.log(error);
           }
-        });
+        );
         // console.log(this.task);
       }
       console.log("タスク");

@@ -8,6 +8,8 @@ const project = {
   mutations: {
     setProjects(state, projects) {
       state.projects = projects;
+      // console.log("state.projects");
+      // console.log(state.projects);
     },
     //新規登録
     add(state, project) {
@@ -18,14 +20,19 @@ const project = {
       Object.assign(editProject, project);
     },
     //削除
-    delete(state, { projectId }) {
+    delete(state, projectId) {
       const index = state.projects.findIndex((o) => {
         return o.id === projectId;
       });
 
-      if (index) {
-        state.projects.splice(index);
+      if (index !== -1) {
+        console.log("削除");
+        console.log(state.projects);
+        console.log(index);
+        state.projects.splice(index, 1);
+        return true;
       } else {
+        console.log("失敗");
         return false;
       }
     }
@@ -33,8 +40,8 @@ const project = {
 
   getters: {
     getProjects(state) {
-      console.log("state.projects");
-      console.log(state.projects);
+      // console.log("state.projects");
+      // console.log(state.projects);
       return state.projects;
     },
   },
@@ -42,10 +49,10 @@ const project = {
   actions: {
     //全プロジェクトデータをロード
     async fetchProjects({ commit }) {
-      await axios.get("http://localhost:8001/api/project/show").then((res) => {
+      await axios.get("/api/project/show").then((res) => {
         commit('setProjects', res.data.getProjectList);
-        console.log("プロジェクトを一覧表示!");
-        console.log(res.data.getProjectList);
+        // console.log("プロジェクトを一覧表示!");
+        // console.log(res.data.getProjectList);
       }, (error) => {
         console.log(error);
       });
@@ -53,9 +60,9 @@ const project = {
     //新規登録
     async createProject({ state, commit }, project) {
       return await axios
-        .post("http://localhost:8001/api/project/regist", project)
+        .post("/api/project/regist", project)
         .then((res) => {
-          console.log(res.data.regist);
+          // console.log(res.data.regist);
           commit('add', res.data.regist);
           return true;
         }).catch(error => {
@@ -70,11 +77,9 @@ const project = {
       });
 
       return await axios
-        .patch("http://localhost:8001/api/project/edit" + project.id, project)
+        .patch("/api/project/edit" + project.id, project)
         .then((res) => {
           commit('update', { editProject, project });
-          console.log("editProject");
-          console.log(editProject);
           return true;
         }).catch(error => {
           console.log('error:', error);
@@ -84,7 +89,7 @@ const project = {
     //削除
     async deleteProjectData({ state, commit }, projectId) {
       return await axios
-        .delete("http://localhost:8001/api/project/delete" + projectId)
+        .delete("/api/project/delete" + projectId)
         .then((res) => {
           commit('delete', projectId);
           return true;

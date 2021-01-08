@@ -31,20 +31,44 @@ export default {
     ...mapActions("task", ["delete"]),
 
     handlDeleteTask(task) {
-      this.delete(task).then((res) => {
-        if (res === true) {
-          alert("タスクを削除しました");
-        } else {
-          alert("タスクの削除に失敗しました");
-        }
+      const index = this.getTasks.findIndex((o) => {
+        return o.id === task.id;
       });
-      console.log(task);
+
+      const eventIndex = this.getEvents.findIndex((o) => {
+        return o.taskId === task.id;
+      });
+      console.log(index);
+      console.log(eventIndex);
+      if (index !== -1 && eventIndex !== -1) {
+        this.delete({
+          task: task,
+          taskIndex: index,
+          eventIndex: eventIndex,
+        }).then((res) => {
+          console.log(res);
+          if (res === true) {
+            alert("タスクを削除しました");
+          } else {
+            alert("タスクの削除に失敗しました");
+          }
+        });
+      } else {
+        alert("タスクの削除に失敗しました");
+      }
       this.close();
     },
-
     close() {
       this.$emit("update:visible", false);
     },
+    closePromise() {
+      return new Promise((resolve, reject) => {
+        resolve(alert("タスクの削除に失敗しました"));
+      });
+    },
+  },
+  computed: {
+    ...mapGetters("task", ["getTasks", "getEvents"]),
   },
 };
 </script>

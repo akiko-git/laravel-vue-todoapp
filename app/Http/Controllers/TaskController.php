@@ -44,6 +44,7 @@ class TaskController extends Controller
 				$tasks->inbox_flag = 0;
 				$tasks->project_id = $request->project_id;
 			}else{
+				$tasks->project_id = null;
 				$tasks->inbox_flag = 1;
 			}
 			$tasks->save();
