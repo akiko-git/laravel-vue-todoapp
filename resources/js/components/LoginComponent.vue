@@ -23,7 +23,7 @@
         <div class="red--text mt-2" v-if="loginFailur">
           メールアドレスまたはパスワードが違います
         </div>
-        <v-btn block class="mt-6" color="warning" @click="login"
+        <v-btn block class="mt-6" color="warning" @click="loginBtn"
           >ログイン</v-btn
         >
         <p class="signUpText">アカウントをお持ちでない方</p>
@@ -35,43 +35,80 @@
   </v-row>
 </template>
 <script>
+import { mapActions, mapState, mapGetters } from "vuex";
 export default {
-  data: () => ({
-    loginInfo: {},
-    errors: {
-      email: false,
-      password: false,
-    },
-    messages: {},
-    loginFailur: false,
-    show1: false,
-  }),
+  data() {
+    return {
+      loginInfo: {},
+      errors: {
+        email: false,
+        password: false,
+      },
+      messages: {},
+      loginFailur: false,
+      show1: false,
+    };
+  },
+  computed: {
+    ...mapGetters("auth", [
+      "check",
+      "username",
+      "getApiStatus",
+      "getLoginErrorMessage",
+    ]),
+  },
   methods: {
-    login() {
+    ...mapActions("auth", ["login", "clearLoginErrorMessage"]),
+    loginBtn() {
       axios.get("/sanctum/csrf-cookie").then((response) => {
-        axios
-          .post("/api/login", this.loginInfo)
-          .then((response) => {
-            // console.log(response);
+        this.login(this.loginInfo).then((res) => {
+          //認証成功
+          if (this.getApiStatus) {
             localStorage.setItem("auth", "ture");
             this.$router.push("/task");
-          })
-          .catch((error) => {
-            if (error.response.status == 401) {
-              this.loginFailur = true;
-            } else {
-              Object.keys(error.response.data.errors).forEach((key) => {
-                this.errors[key] = true;
-                this.messages[key] = error.response.data.errors[key][0];
-              });
-            }
-          });
+          }
+          //バリデーションエラー
+          if (this.getLoginErrorMessage) {
+            Object.keys(this.getLoginErrorMessage).forEach((key) => {
+              this.errors[key] = true;
+              this.messages[key] = this.getLoginErrorMessage[key][0];
+            });
+          }
+          //メールアドレス・パスワードの不一致
+          if (res === 401) {
+            this.loginFailur = true;
+          }
+        });
       });
+
+      // axios.get("/sanctum/csrf-cookie").then((response) => {
+      //   axios
+      //     .post("/api/login", this.loginInfo)
+      //     .then((response) => {
+      //       // console.log(response);
+      //       localStorage.setItem("auth", "ture");
+      //       this.$router.push("/task");
+      //     })
+      //     .catch((error) => {
+      //       if (error.response.status == 401) {
+      //         this.loginFailur = true;
+      //       } else {
+      //         Object.keys(error.response.data.errors).forEach((key) => {
+      //           this.errors[key] = true;
+      //           this.messages[key] = error.response.data.errors[key][0];
+      //         });
+      //       }
+      //     });
+      // });
     },
     resetError(item) {
       this.errors[item] = false;
       this.messages[item] = "";
+      this.loginFailur = false;
     },
+  },
+  created() {
+    this.clearLoginErrorMessage();
   },
 };
 </script>

@@ -19,7 +19,7 @@ class LoginController extends Controller
 
         if (Auth::attempt($credentials)) {
             // 認証に成功
-            return response()->json(['message' => 'ログインしたよ'], 200);
+            return response()->json(['message' => 'success login'], 200);
         }else{
             return response()->json(['error' => 'Unauthorized'], 401);
         }

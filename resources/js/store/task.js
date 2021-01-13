@@ -1,3 +1,4 @@
+import { OK, CREATED, UNAUTHORIZED, UNPROCESSABLE_ENTITY } from '../util'
 const task = {
   namespaced: true,
 
@@ -111,11 +112,17 @@ const task = {
     //全タスクデータロード
     async fetchTasks({ commit }) {
       await axios.get("/api/todolist/store").then((res) => {
-        commit('setTask', res.data.getlist);
-        commit('setEventsData');
-        // console.log('storeだよ');
-      }, (error) => {
-        console.log(error);
+        // console.log(res);
+        if (res.status === OK) {
+          //200
+          commit('setTask', res.data.getlist);
+          commit('setEventsData');
+        } else {
+          //200意外
+          commit('error/setCode', res.status, { root: true });
+        }
+      }).catch(error => {
+        return error;
       });
     },
     //新規登録
@@ -123,16 +130,17 @@ const task = {
       return await axios
         .post("/api/todolist/form", task)
         .then((res) => {
-          // console.log(res.data.success);
-          commit('add', res.data.success);
-          return res;
-          // state.tasks.push(res.data.success);
+          if (res.status === CREATED) {
+            //201
+            commit('add', res.data.success);
+            return true;
+          } else {
+            //201意外
+            commit('error/setCode', res.status, { root: true });
+          }
         }).catch(error => {
-          console.log("登録時のエラーだよ");
-          console.log(error.response);
-          console.log(error);
           return error;
-        });;
+        });
     },
     //削除
     async delete({ state, commit }, { task, taskIndex, eventIndex }) {
@@ -140,10 +148,15 @@ const task = {
       return await axios
         .delete("/api/todolist/delete" + task.id)
         .then((res) => {
-          commit('delete', { taskIndex, eventIndex });
-          return true;
-          //this.lists.splice(res.data.success);
-          // this.getList();
+          // console.log(res);
+          if (res.status === OK) {
+            //200
+            commit('delete', { taskIndex, eventIndex });
+            return true;
+          } else {
+            //200意外
+            commit('error/setCode', res.status, { root: true });
+          }
         }).catch(error => {
           return error;
         });
@@ -164,11 +177,16 @@ const task = {
 
       return await axios.patch('/api/todolist/edit' + newTask.id, newTask)
         .then(res => {
-          commit('update', { task, newTask });
-          commit('eventsUpdate', { eventIndex, newTask });
-          // console.log(task);
-          // console.log(eventIndex);
-          return true;
+          // console.log(res);
+          if (res.status === OK) {
+            //200
+            commit('update', { task, newTask });
+            commit('eventsUpdate', { eventIndex, newTask });
+            return true;
+          } else {
+            //200意外
+            commit('error/setCode', res.status, { root: true });
+          }
         }).catch(error => {
           return error;
         });
@@ -179,10 +197,15 @@ const task = {
       return await axios
         .patch("/api/todolist/doneTask", editStatusTask)
         .then((res) => {
-          commit('updateStatus', { editStatusTask, editStatusEvent });
-          return true;
-          //this.lists.splice(res.data.success);
-          // this.getList();
+          // console.log(res);
+          if (res.status === OK) {
+            //200
+            commit('updateStatus', { editStatusTask, editStatusEvent });
+            return true;
+          } else {
+            //200意外
+            commit('error/setCode', res.status, { root: true });
+          }
         }).catch(error => {
           return error;
         });

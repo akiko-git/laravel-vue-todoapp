@@ -179,7 +179,7 @@
               <v-list-item-title>設定</v-list-item-title>
             </v-list-item>
             <v-divider></v-divider>
-            <v-list-item dense link @click="logout">
+            <v-list-item dense link @click="logoutBtn">
               <v-list-item-icon>
                 <v-icon>mdi-logout</v-icon>
               </v-list-item-icon>
@@ -218,6 +218,7 @@ export default {
   methods: {
     ...mapActions("task", ["fetchTasks", "fetchUser"]),
     ...mapActions("project", ["fetchProjects", "deleteProjectData"]),
+    ...mapActions("auth", ["logout"]),
     mouseOverAction() {
       this.hoverFlag = true;
     },
@@ -265,18 +266,27 @@ export default {
       this.projectMenu[index] = false;
     },
     //ログアウト
-    logout() {
-      axios
-        .post("/api/logout")
-        .then((res) => {
-          // console.log(res);
+    logoutBtn() {
+      this.logout().then((res) => {
+        //認証成功
+        if (res === true) {
           localStorage.removeItem("auth");
           this.$router.go(this.$router.currentRoute.path);
           this.$router.push("/login");
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+        }
+      });
+
+      // axios
+      //   .post("/api/logout")
+      //   .then((res) => {
+      //     // console.log(res);
+      //     localStorage.removeItem("auth");
+      //     this.$router.go(this.$router.currentRoute.path);
+      //     this.$router.push("/login");
+      //   })
+      //   .catch((err) => {
+      //     console.log(err);
+      //   });
     },
   },
   created() {

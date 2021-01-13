@@ -6,6 +6,7 @@ import CalendarComponent from './components/CalendarComponent.vue';
 import LoginComponent from './components/LoginComponent.vue';
 import RegistComponent from './components/RegistComponent.vue';
 import NotFoundComponent from './components/NotFoundComponent.vue';
+import SystemError from './pages/errors/SystemError.vue';
 
 Vue.use(Router)
 
@@ -35,6 +36,11 @@ const router = new Router({
             name: 'regist',
             component: RegistComponent,
             meta: { title: '新規登録' },
+        },
+        {
+            path: '/500',
+            name: '500',
+            component: SystemError
         },
         //リダイレクト
         {

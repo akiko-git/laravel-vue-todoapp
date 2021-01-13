@@ -35,6 +35,7 @@
   </v-row>
 </template>
 <script>
+import { mapActions, mapState, mapGetters } from "vuex";
 export default {
   data() {
     return {
@@ -48,33 +49,60 @@ export default {
       messages: {},
     };
   },
+  computed: {
+    ...mapGetters("auth", [
+      "check",
+      "username",
+      "getApiStatus",
+      "getRegisterErrorMessage",
+    ]),
+  },
   methods: {
+    ...mapActions("auth", ["register", "clearRegisterErrorMessage"]),
     regist() {
-      axios
-        .post("/api/regist", this.registInfo)
-        .then((response) => {
-          console.log("成功した時");
+      this.register(this.registInfo).then((res) => {
+        //登録成功
+        if (this.getApiStatus) {
           this.$router.push("/login");
-          console.log(response);
-        })
-        .catch((error) => {
-          Object.keys(error.response.data.errors).forEach((key) => {
+        }
+        //バリデーションエラー
+        if (this.getApiStatus === false && this.getRegisterErrorMessage) {
+          console.log("422だよ");
+          Object.keys(this.getRegisterErrorMessage).forEach((key) => {
             this.errors[key] = true;
-            this.messages[key] = error.response.data.errors[key][0];
+            this.messages[key] = this.getRegisterErrorMessage[key][0];
           });
-          // Object.keys(error.response.data.errors).map((key) => {
-          //   this.errors[key] = true;
-          //   this.messages[key] = error.response.data.errors[key][0];
-          // });
-          console.log("エラーがある時");
-          console.log(this.errors);
-          console.log(error.response);
-        });
+        }
+      });
+
+      // axios
+      //   .post("/api/regist", this.registInfo)
+      //   .then((response) => {
+      //     console.log("成功した時");
+      //     this.$router.push("/login");
+      //     console.log(response);
+      //   })
+      //   .catch((error) => {
+      //     Object.keys(error.response.data.errors).forEach((key) => {
+      //       this.errors[key] = true;
+      //       this.messages[key] = error.response.data.errors[key][0];
+      //     });
+      //     // Object.keys(error.response.data.errors).map((key) => {
+      //     //   this.errors[key] = true;
+      //     //   this.messages[key] = error.response.data.errors[key][0];
+      //     // });
+      //     console.log("エラーがある時");
+      //     console.log(this.errors);
+      //     console.log(error.response);
+      //   });
     },
     resetError(item) {
       this.errors[item] = false;
       this.messages[item] = null;
     },
+  },
+  created() {
+    this.clearRegisterErrorMessage();
   },
 };
 </script>

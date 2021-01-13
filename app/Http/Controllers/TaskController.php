@@ -24,7 +24,7 @@ class TaskController extends Controller
 		// 	if (Auth::check()) {
 		// 		$isLogin =  "ログインOK";
 		// }
-
+		// abort(500);
 			return response()->json(['getlist'=>$tasks,'user'=>$user]);
 		}
 
@@ -48,7 +48,7 @@ class TaskController extends Controller
 				$tasks->inbox_flag = 1;
 			}
 			$tasks->save();
-			return response()->json(['success'=>$tasks]);
+			return response()->json(['success'=>$tasks],201);
 		}
 
 		//タスク編集
@@ -81,10 +81,6 @@ class TaskController extends Controller
 			$task->save();
 
 			return response()->json(['success'=>$task]);
-		}
-
-		public function test(Request $request){
-			return response()->json(['success'=>$request]);
 		}
 
 		//タスク削除
