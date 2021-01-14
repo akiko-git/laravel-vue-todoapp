@@ -275,18 +275,6 @@ export default {
           this.$router.push("/login");
         }
       });
-
-      // axios
-      //   .post("/api/logout")
-      //   .then((res) => {
-      //     // console.log(res);
-      //     localStorage.removeItem("auth");
-      //     this.$router.go(this.$router.currentRoute.path);
-      //     this.$router.push("/login");
-      //   })
-      //   .catch((err) => {
-      //     console.log(err);
-      //   });
     },
   },
   created() {

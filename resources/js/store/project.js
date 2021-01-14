@@ -1,3 +1,4 @@
+import { OK, CREATED, UNAUTHORIZED, UNPROCESSABLE_ENTITY } from '../util'
 const project = {
   namespaced: true,
 
@@ -26,9 +27,9 @@ const project = {
       });
 
       if (index !== -1) {
-        console.log("削除");
-        console.log(state.projects);
-        console.log(index);
+        // console.log("削除");
+        // console.log(state.projects);
+        // console.log(index);
         state.projects.splice(index, 1);
         return true;
       } else {
@@ -50,11 +51,17 @@ const project = {
     //全プロジェクトデータをロード
     async fetchProjects({ commit }) {
       await axios.get("/api/project/show").then((res) => {
-        commit('setProjects', res.data.getProjectList);
-        // console.log("プロジェクトを一覧表示!");
-        // console.log(res.data.getProjectList);
-      }, (error) => {
-        console.log(error);
+
+        if (res.status === OK) {
+          //200
+          commit('setProjects', res.data.getProjectList);
+        } else {
+          //200意外
+          commit('error/setCode', res.status, { root: true });
+        }
+      }).catch(error => {
+        console.log('error:', error);
+        return error;
       });
     },
     //新規登録
@@ -62,9 +69,14 @@ const project = {
       return await axios
         .post("/api/project/regist", project)
         .then((res) => {
-          // console.log(res.data.regist);
-          commit('add', res.data.regist);
-          return true;
+          if (res.status === CREATED) {
+            //201
+            commit('add', res.data.regist);
+            return true;
+          } else {
+            //201意外
+            commit('error/setCode', res.status, { root: true });
+          }
         }).catch(error => {
           console.log('error:', error);
           return error;
@@ -79,8 +91,16 @@ const project = {
       return await axios
         .patch("/api/project/edit" + project.id, project)
         .then((res) => {
-          commit('update', { editProject, project });
-          return true;
+
+          if (res.status === OK) {
+            console.log(res);
+            //200
+            commit('update', { editProject, project });
+            return true;
+          } else {
+            //200意外
+            commit('error/setCode', res.status, { root: true });
+          }
         }).catch(error => {
           console.log('error:', error);
           return error;
@@ -91,8 +111,15 @@ const project = {
       return await axios
         .delete("/api/project/delete" + projectId)
         .then((res) => {
-          commit('delete', projectId);
-          return true;
+          if (res.status === OK) {
+            console.log(res);
+            //200
+            commit('delete', projectId);
+            return true;
+          } else {
+            //200意外
+            commit('error/setCode', res.status, { root: true });
+          }
         }).catch(error => {
           console.log('error:', error);
           return error;

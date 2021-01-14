@@ -24,10 +24,12 @@
 <script>
 import { mapState, mapActions, mapGetters } from "vuex";
 export default {
-  data: () => ({
-    dialog: false,
-    project: {},
-  }),
+  data() {
+    return {
+      dialog: false,
+      project: {},
+    };
+  },
   props: {
     dialogTitle: {
       type: String,

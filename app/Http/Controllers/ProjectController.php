@@ -16,6 +16,7 @@ class ProjectController extends Controller
     public function show(){
         $projects = Project::where('user_id',Auth::id())->get();
         //dd($projects);
+        // abort(500);
         return response()->json(['getProjectList'=>$projects]);
     }
 
@@ -24,8 +25,9 @@ class ProjectController extends Controller
         $projects = new Project;
         $projects->user_id = Auth::id();
         $projects->project = $request->project;
+        // abort(500);
         $projects->save();
-        return response()->json(['regist'=>$projects]);
+        return response()->json(['regist'=>$projects],201);
     }
 
     //プロジェクトの編集
