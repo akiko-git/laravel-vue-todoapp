@@ -7,6 +7,19 @@
 require('./bootstrap');
 
 window.Vue = require('vue');
+import Vue from "vue";
+import router from './router';
+import Vuetify from 'vuetify';
+import store from './store/index';
+import 'vuetify/dist/vuetify.min.css';
+import 'material-design-icons-iconfont/dist/material-design-icons.css';
+import '@mdi/font/css/materialdesignicons.css';
+import ja from 'vuetify/es5/locale/ja.js'
+import axios from "axios";
+import App from "./App.vue";
+import _ from 'lodash';
+Vue.use(Vuetify);
+
 
 /**
  * The following block of code may be used to automatically register your
@@ -19,7 +32,7 @@ window.Vue = require('vue');
 // const files = require.context('./', true, /\.vue$/i)
 // files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default))
 
-Vue.component('example-component', require('./components/ExampleComponent.vue').default);
+//Vue.component('task', require('./components/TaskComponent.vue').default);
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to
@@ -28,5 +41,15 @@ Vue.component('example-component', require('./components/ExampleComponent.vue').
  */
 
 const app = new Vue({
-    el: '#app',
+	el: '#app',
+	router,
+	store,
+	vuetify: new Vuetify({
+		lang: {
+			locales: { ja },
+			current: 'ja',
+		},
+	}),
+	components: { App },
+	template: '<App />'
 });
