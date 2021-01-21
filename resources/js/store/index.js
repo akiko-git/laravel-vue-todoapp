@@ -13,8 +13,8 @@ const store = new Vuex.Store({
     auth,
     error,
     task,
-    project
-  }
+    project,
+  },
 });
 
 export default store;

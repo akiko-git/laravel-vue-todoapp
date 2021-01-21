@@ -2,9 +2,9 @@
   <v-row class="fill-height" justify="center" align-content="center" dens>
     <TaskDialog
       ref="taskAddDialog"
-      dialogTitle="新規登録"
-      dialogBtnText="追加"
-    ></TaskDialog>
+      dialog-title="新規登録"
+      dialog-btn-text="追加"
+    />
     <v-col cols="11">
       <v-toolbar flat>
         <v-btn fab text small color="grey darken-2" @click="prev">
@@ -19,9 +19,9 @@
         <v-btn outlined class="mr-4" color="grey darken-2" @click="setToday">
           Today
         </v-btn>
-        <v-spacer></v-spacer>
+        <v-spacer />
         <v-menu bottom right>
-          <template v-slot:activator="{ on, attrs }">
+          <template #activator="{ on, attrs }">
             <v-btn outlined color="grey darken-2" v-bind="attrs" v-on="on">
               <span>{{ typeToLabel[type] }}</span>
               <v-icon right> mdi-menu-down </v-icon>
@@ -42,9 +42,9 @@
       </v-toolbar>
       <v-sheet height="600">
         <v-calendar
-          color="red"
           ref="calendar"
           v-model="focus"
+          color="red"
           :type="type"
           :events="filteredEvents"
           :event-color="getEventColor"
@@ -53,7 +53,7 @@
           @click:more="viewDay"
           @click:day="openTaskDialogAsAdd"
           @change="updateRange"
-        ></v-calendar>
+        />
         <v-menu
           v-model="selectedOpen"
           :close-on-content-click="false"
@@ -63,7 +63,7 @@
           <v-card color="grey lighten-4" min-width="350px" flat>
             <v-toolbar color="grey lighten-4" flat>
               <v-toolbar-title>{{ selectedEvent.name }}</v-toolbar-title>
-              <v-spacer></v-spacer>
+              <v-spacer />
               <v-btn icon @click="done(selectedEvent.taskId)">
                 <v-icon>mdi-check-outline</v-icon>
               </v-btn>
@@ -83,150 +83,156 @@
         </v-menu>
         <TaskDialog
           ref="taskEditDialog"
-          dialogTitle="編集"
-          dialogBtnText="保存"
-        ></TaskDialog>
+          dialog-title="編集"
+          dialog-btn-text="保存"
+        />
         <DeleteTask
-          :deleteData="deleteTask"
-          :visible.sync="deleteDialog"
-        ></DeleteTask>
+          :delete-data="deleteTask"
+          :visible="deleteDialog"
+          @DeleteTaskClose="deleteDialog = false"
+        />
       </v-sheet>
     </v-col>
   </v-row>
 </template>
 <script>
-import moment from "moment";
-import { mapActions, mapState, mapGetters } from "vuex";
-import DeleteTask from "./DeleteTask";
-import TaskDialog from "./TaskDialog";
-export default {
-  components: {
-    TaskDialog,
-    DeleteTask,
-  },
+  import moment from 'moment';
+  import { mapActions, mapGetters } from 'vuex';
+  import DeleteTask from './DeleteTask';
+  import TaskDialog from './TaskDialog';
+  export default {
+    components: {
+      TaskDialog,
+      DeleteTask,
+    },
 
-  data: () => ({
-    // today: "2020-05-21",
-    focus: moment().format("yyyy-MM-DD"),
-    type: "month",
-    typeToLabel: {
-      month: "Month",
-      week: "Week",
-      day: "Day",
-    },
-    selectedEvent: {},
-    selectedElement: null,
-    selectedOpen: false,
-    events: [],
-    colors: ["blue", "indigo", "cyan", "green", "pink", "orange"],
-    deleteTask: {},
-    deleteDialog: false,
-  }),
-  methods: {
-    ...mapActions("task", ["fetchTasks", "delete", "fetchEvents", "doneTask"]),
-    viewDay({ date }) {
-      this.focus = date;
-      this.type = "day";
-    },
-    getEventColor(event) {
-      return event.color;
-    },
-    showEvent({ nativeEvent, event }) {
-      const open = () => {
-        this.selectedEvent = event;
-        this.selectedElement = nativeEvent.target;
-        setTimeout(() => {
-          this.selectedOpen = true;
-        }, 10);
+    data() {
+      return {
+        // today: "2020-05-21",
+        focus: moment().format('yyyy-MM-DD'),
+        type: 'month',
+        typeToLabel: {
+          month: 'Month',
+          week: 'Week',
+          day: 'Day',
+        },
+        selectedEvent: {},
+        selectedElement: null,
+        selectedOpen: false,
+        events: [],
+        colors: ['blue', 'indigo', 'cyan', 'green', 'pink', 'orange'],
+        deleteTask: {},
+        deleteDialog: false,
       };
-      if (this.selectedOpen) {
-        this.selectedOpen = false;
-        setTimeout(open, 10);
-      } else {
-        open();
-      }
-      nativeEvent.stopPropagation();
     },
-    prev() {
-      this.$refs.calendar.prev();
+    computed: {
+      ...mapGetters('task', ['getTasks', 'getEvents']),
+      filteredEvents() {
+        return this.getEvents.filter((task) => task.status === 1);
+      },
+      calendarTitle() {
+        return moment(this.focus).format('yyyy年 M月');
+      },
     },
-    next() {
-      this.$refs.calendar.next();
+    created() {
+      this.events = this.filteredEvents;
     },
-    setToday() {
-      this.focus = moment().format("yyyy-MM-DD");
+    mounted() {
+      this.$refs.calendar.checkChange();
     },
-    updateRange({ start, end }) {
-      return this.filteredEvents;
-      // this.events = this.filteredEvents;
-    },
-    //タスクの追加
-    openTaskDialogAsAdd({ date }) {
-      this.$refs.taskAddDialog.open(date);
-    },
-    //タスクの編集
-    openTaskDialogAsEdit() {
-      // this.editEvent = this.selectedEvent;
+    methods: {
+      ...mapActions('task', [
+        'fetchTasks',
+        'delete',
+        'fetchEvents',
+        'doneTask',
+      ]),
+      viewDay({ date }) {
+        this.focus = date;
+        this.type = 'day';
+      },
+      getEventColor(event) {
+        return event.color;
+      },
+      showEvent({ nativeEvent, event }) {
+        const open = () => {
+          this.selectedEvent = event;
+          this.selectedElement = nativeEvent.target;
+          setTimeout(() => {
+            this.selectedOpen = true;
+          }, 10);
+        };
+        if (this.selectedOpen) {
+          this.selectedOpen = false;
+          setTimeout(open, 10);
+        } else {
+          open();
+        }
+        nativeEvent.stopPropagation();
+      },
+      prev() {
+        this.$refs.calendar.prev();
+      },
+      next() {
+        this.$refs.calendar.next();
+      },
+      setToday() {
+        this.focus = moment().format('yyyy-MM-DD');
+      },
+      updateRange({ start, end }) {// eslint-disable-line
+        return this.filteredEvents;
+        // this.events = this.filteredEvents;
+      },
+      //タスクの追加
+      openTaskDialogAsAdd({ date }) {
+        this.$refs.taskAddDialog.open(date);
+      },
+      //タスクの編集
+      openTaskDialogAsEdit() {
+        // this.editEvent = this.selectedEvent;
 
-      this.$refs.taskEditDialog.open(
-        this.selectedEvent.start,
-        this.selectedEvent.taskObj
-      );
-      console.log("this.selectedEvent.taskObj");
-      console.log(this.selectedEvent.taskObj);
-    },
-    //タスクの完了
-    done(taskId) {
-      //ストアのタスクから取得
-      const editStatusTask = this.getTasks.find((o) => {
-        return o.id === taskId;
-      });
-      //ストアのイベントから取得
-      const editStatusEvent = this.getEvents.find((o) => {
-        return o.taskId === taskId;
-      });
-      if (editStatusTask && editStatusEvent) {
-        this.doneTask({ editStatusTask, editStatusEvent }).then((res) => {
-          if (res === true) {
-            alert("タスクを完了しました");
-          } else {
-            alert("タスクの完了に失敗しました");
-          }
+        this.$refs.taskEditDialog.open(
+          this.selectedEvent.start,
+          this.selectedEvent.taskObj
+        );
+        console.log('this.selectedEvent.taskObj');
+        console.log(this.selectedEvent.taskObj);
+      },
+      //タスクの完了
+      done(taskId) {
+        //ストアのタスクから取得
+        const editStatusTask = this.getTasks.find((o) => {
+          return o.id === taskId;
         });
-      } else {
-        alert("タスクの完了に失敗しました");
-      }
-      this.close();
+        //ストアのイベントから取得
+        const editStatusEvent = this.getEvents.find((o) => {
+          return o.taskId === taskId;
+        });
+        if (editStatusTask && editStatusEvent) {
+          this.doneTask({ editStatusTask, editStatusEvent }).then((res) => {
+            if (res === true) {
+              alert('タスクを完了しました');
+            } else {
+              alert('タスクの完了に失敗しました');
+            }
+          });
+        } else {
+          alert('タスクの完了に失敗しました');
+        }
+        this.close();
+      },
+      //タスクの削除
+      deleteConfirm(task) {
+        this.deleteDialog = true;
+        this.deleteTask = task;
+      },
+      rnd(min, max) {
+        return Math.floor((max - min + 1) * Math.random()) + min;
+      },
+      close() {
+        this.selectedOpen = false;
+      },
     },
-    //タスクの削除
-    deleteConfirm(task) {
-      this.deleteDialog = true;
-      this.deleteTask = task;
-    },
-    rnd(min, max) {
-      return Math.floor((max - min + 1) * Math.random()) + min;
-    },
-    close() {
-      this.selectedOpen = false;
-    },
-  },
-  props: {},
-  computed: {
-    ...mapGetters("task", ["getTasks", "getEvents"]),
-    filteredEvents() {
-      return this.getEvents.filter((task) => task.status === 1);
-    },
-    calendarTitle() {
-      return moment(this.focus).format("yyyy年 M月");
-    },
-  },
-  created() {
-    this.events = this.filteredEvents;
-  },
-  mounted() {
-    this.$refs.calendar.checkChange();
-  },
-};
+  };
 </script>
-<style lang="scss" scoped>
-</style>
+<style lang="scss" scoped></style>

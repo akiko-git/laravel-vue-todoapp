@@ -17,8 +17,6 @@ const error = {
   //     return state.code;
   //   },
   // },
-
-
-}
+};
 
 export default error;

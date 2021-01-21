@@ -1,4 +1,4 @@
-import { OK, CREATED, UNAUTHORIZED, UNPROCESSABLE_ENTITY } from '../util'
+import { OK, CREATED } from '../util';
 const project = {
   namespaced: true,
 
@@ -33,10 +33,10 @@ const project = {
         state.projects.splice(index, 1);
         return true;
       } else {
-        console.log("失敗");
+        console.log('失敗');
         return false;
       }
-    }
+    },
   },
 
   getters: {
@@ -50,24 +50,26 @@ const project = {
   actions: {
     //全プロジェクトデータをロード
     async fetchProjects({ commit }) {
-      await axios.get("/api/project/show").then((res) => {
-
-        if (res.status === OK) {
-          //200
-          commit('setProjects', res.data.getProjectList);
-        } else {
-          //200意外
-          commit('error/setCode', res.status, { root: true });
-        }
-      }).catch(error => {
-        console.log('error:', error);
-        return error;
-      });
+      await axios
+        .get('/api/project/show')
+        .then((res) => {
+          if (res.status === OK) {
+            //200
+            commit('setProjects', res.data.getProjectList);
+          } else {
+            //200意外
+            commit('error/setCode', res.status, { root: true });
+          }
+        })
+        .catch((error) => {
+          console.log('error:', error);
+          return error;
+        });
     },
     //新規登録
-    async createProject({ state, commit }, project) {
+    async createProject({ commit }, project) {
       return await axios
-        .post("/api/project/regist", project)
+        .post('/api/project/regist', project)
         .then((res) => {
           if (res.status === CREATED) {
             //201
@@ -77,7 +79,8 @@ const project = {
             //201意外
             commit('error/setCode', res.status, { root: true });
           }
-        }).catch(error => {
+        })
+        .catch((error) => {
           console.log('error:', error);
           return error;
         });
@@ -89,9 +92,8 @@ const project = {
       });
 
       return await axios
-        .patch("/api/project/edit" + project.id, project)
+        .patch('/api/project/edit' + project.id, project)
         .then((res) => {
-
           if (res.status === OK) {
             console.log(res);
             //200
@@ -101,15 +103,16 @@ const project = {
             //200意外
             commit('error/setCode', res.status, { root: true });
           }
-        }).catch(error => {
+        })
+        .catch((error) => {
           console.log('error:', error);
           return error;
         });
     },
     //削除
-    async deleteProjectData({ state, commit }, projectId) {
+    async deleteProjectData({ commit }, projectId) {
       return await axios
-        .delete("/api/project/delete" + projectId)
+        .delete('/api/project/delete' + projectId)
         .then((res) => {
           if (res.status === OK) {
             console.log(res);
@@ -120,12 +123,12 @@ const project = {
             //200意外
             commit('error/setCode', res.status, { root: true });
           }
-        }).catch(error => {
+        })
+        .catch((error) => {
           console.log('error:', error);
           return error;
         });
     },
-
   },
 };
 

@@ -7,19 +7,16 @@
 require('./bootstrap');
 
 window.Vue = require('vue');
-import Vue from "vue";
+import Vue from 'vue';
 import router from './router';
 import Vuetify from 'vuetify';
 import store from './store/index';
 import 'vuetify/dist/vuetify.min.css';
 import 'material-design-icons-iconfont/dist/material-design-icons.css';
 import '@mdi/font/css/materialdesignicons.css';
-import ja from 'vuetify/es5/locale/ja.js'
-import axios from "axios";
-import App from "./App.vue";
-import _ from 'lodash';
+import ja from 'vuetify/es5/locale/ja.js';
+import App from './App.vue';
 Vue.use(Vuetify);
-
 
 /**
  * The following block of code may be used to automatically register your
@@ -40,16 +37,16 @@ Vue.use(Vuetify);
  * or customize the JavaScript scaffolding to fit your unique needs.
  */
 
-const app = new Vue({
-	el: '#app',
-	router,
-	store,
-	vuetify: new Vuetify({
-		lang: {
-			locales: { ja },
-			current: 'ja',
-		},
-	}),
-	components: { App },
-	template: '<App />'
+new Vue({
+  el: '#app',
+  router,
+  store,
+  vuetify: new Vuetify({
+    lang: {
+      locales: { ja },
+      current: 'ja',
+    },
+  }),
+  components: { App },
+  template: '<App />',
 });
