@@ -7,9 +7,7 @@
     </v-row>
   </v-footer>
 </template>
-
 <script>
-export default {};
-<style lang="scss" scoped>
-<style>
-</style>
+  export default {};
+</script>
+<style lang="scss" scoped></style>

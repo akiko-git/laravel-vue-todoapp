@@ -1,4 +1,4 @@
-import { OK, CREATED, UNAUTHORIZED, UNPROCESSABLE_ENTITY } from '../util'
+import { OK, CREATED, UNAUTHORIZED, UNPROCESSABLE_ENTITY } from '../util';
 const auth = {
   namespaced: true,
 
@@ -6,7 +6,7 @@ const auth = {
     user: null,
     apiStatus: null,
     loginErrorMessage: null,
-    registerErrorMessage: null
+    registerErrorMessage: null,
   },
 
   mutations: {
@@ -22,14 +22,13 @@ const auth = {
     setRegisterErrorMessage(state, message) {
       state.registerErrorMessage = message;
     },
-
   },
 
   getters: {
     // ログイン済みかどうか
-    check: state => !!state.user,
+    check: (state) => !!state.user,
     // ユーザネームの取得
-    username: state => (state.user ? state.user.name : ""),
+    username: (state) => (state.user ? state.user.name : ''),
     getApiStatus(state) {
       return state.apiStatus;
     },
@@ -42,12 +41,11 @@ const auth = {
   },
 
   actions: {
-
     //ログイン
-    async login({ state, commit }, data) {
+    async login({ commit }, data) {
       //setApiStatusをクリア
       commit('setApiStatus', null);
-      const response = await axios.post("/api/login", data);
+      const response = await axios.post('/api/login', data);
 
       //通信成功 200
       if (response.status === OK) {
@@ -68,7 +66,6 @@ const auth = {
       } else {
         commit('error/setCode', response.status, { root: true });
       }
-
     },
 
     //エラーメッセージの初期化
@@ -77,10 +74,10 @@ const auth = {
     },
 
     //ユーザー登録
-    async register({ state, commit }, data) {
+    async register({ commit }, data) {
       //setApiStatusをクリア
       commit('setApiStatus', null);
-      const response = await axios.post("/api/regist", data);
+      const response = await axios.post('/api/regist', data);
 
       //登録成功 201
       if (response.status === CREATED) {
@@ -112,8 +109,7 @@ const auth = {
     async logout({ commit }) {
       //setApiStatusをクリア
       commit('setApiStatus', null);
-      const response = await axios
-        .post("/api/logout");
+      const response = await axios.post('/api/logout');
 
       //通信成功 200
       if (response.status === OK) {
@@ -121,21 +117,17 @@ const auth = {
         commit('setUser', null);
         return true;
       }
-      console.log("失敗");
+      console.log('失敗');
       //通信失敗
       commit('setApiStatus', false);
       commit('error/setCode', response.status, { root: true });
-
     },
-
 
     //ユーザーをクリア
     clearUser({ commit }) {
       commit('setUser', null);
     },
-
   },
-
-}
+};
 
 export default auth;

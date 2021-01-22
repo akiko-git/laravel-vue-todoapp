@@ -1,4 +1,4 @@
-import { OK, CREATED, UNAUTHORIZED, UNPROCESSABLE_ENTITY } from '../util'
+import { OK, CREATED } from '../util';
 const task = {
   namespaced: true,
 
@@ -8,7 +8,7 @@ const task = {
     category: null,
     tasks: [],
     events: [],
-    colors: ["blue", "indigo", "cyan", "green", "pink", "orange"],
+    colors: ['blue', 'indigo', 'cyan', 'green', 'pink', 'orange'],
     user: [],
     projects: [],
   },
@@ -27,7 +27,7 @@ const task = {
           projectId: state.tasks[i].project_id,
           status: state.tasks[i].status,
           taskObj: state.tasks[i],
-          color: state.colors[Math.floor((state.colors.length) * Math.random())],
+          color: state.colors[Math.floor(state.colors.length * Math.random())],
         });
       }
     },
@@ -52,7 +52,7 @@ const task = {
         projectId: task.project_id,
         status: task.status,
         taskObj: task,
-        color: state.colors[Math.floor((state.colors.length) * Math.random())],
+        color: state.colors[Math.floor(state.colors.length * Math.random())],
       });
     },
     //タスクの削除
@@ -80,8 +80,7 @@ const task = {
     updateStatus(state, { editStatusTask, editStatusEvent }) {
       Object.assign(editStatusTask, { status: 2 });
       Object.assign(editStatusEvent, { status: 2 });
-    }
-
+    },
   },
 
   getters: {
@@ -101,34 +100,40 @@ const task = {
   actions: {
     //ユーザーの取得
     async fetchUser({ commit }) {
-      await axios.get("/api/user").then((res) => {
-        commit('setUser', res.data);
-        // console.log(res.data);
-      }, (error) => {
-        console.log(error);
-      });
+      await axios.get('/api/user').then(
+        (res) => {
+          commit('setUser', res.data);
+          // console.log(res.data);
+        },
+        (error) => {
+          console.log(error);
+        }
+      );
     },
 
     //全タスクデータロード
     async fetchTasks({ commit }) {
-      await axios.get("/api/todolist/store").then((res) => {
-        // console.log(res);
-        if (res.status === OK) {
-          //200
-          commit('setTask', res.data.getlist);
-          commit('setEventsData');
-        } else {
-          //200意外
-          commit('error/setCode', res.status, { root: true });
-        }
-      }).catch(error => {
-        return error;
-      });
+      await axios
+        .get('/api/todolist/store')
+        .then((res) => {
+          // console.log(res);
+          if (res.status === OK) {
+            //200
+            commit('setTask', res.data.getlist);
+            commit('setEventsData');
+          } else {
+            //200意外
+            commit('error/setCode', res.status, { root: true });
+          }
+        })
+        .catch((error) => {
+          return error;
+        });
     },
     //新規登録
-    async creatTask({ state, commit }, task) {
+    async creatTask({ commit }, task) {
       return await axios
-        .post("/api/todolist/form", task)
+        .post('/api/todolist/form', task)
         .then((res) => {
           if (res.status === CREATED) {
             //201
@@ -138,15 +143,16 @@ const task = {
             //201意外
             commit('error/setCode', res.status, { root: true });
           }
-        }).catch(error => {
+        })
+        .catch((error) => {
           return error;
         });
     },
     //削除
-    async delete({ state, commit }, { task, taskIndex, eventIndex }) {
+    async delete({ commit }, { task, taskIndex, eventIndex }) {
       // const index = state.tasks.indexOf(task);
       return await axios
-        .delete("/api/todolist/delete" + task.id)
+        .delete('/api/todolist/delete' + task.id)
         .then((res) => {
           // console.log(res);
           if (res.status === OK) {
@@ -157,7 +163,8 @@ const task = {
             //200意外
             commit('error/setCode', res.status, { root: true });
           }
-        }).catch(error => {
+        })
+        .catch((error) => {
           return error;
         });
     },
@@ -175,8 +182,9 @@ const task = {
         return false;
       }
 
-      return await axios.patch('/api/todolist/edit' + newTask.id, newTask)
-        .then(res => {
+      return await axios
+        .patch('/api/todolist/edit' + newTask.id, newTask)
+        .then((res) => {
           // console.log(res);
           if (res.status === OK) {
             //200
@@ -187,15 +195,16 @@ const task = {
             //200意外
             commit('error/setCode', res.status, { root: true });
           }
-        }).catch(error => {
+        })
+        .catch((error) => {
           return error;
         });
     },
 
     //タスクの完了
-    async doneTask({ state, commit }, { editStatusTask, editStatusEvent }) {
+    async doneTask({ commit }, { editStatusTask, editStatusEvent }) {
       return await axios
-        .patch("/api/todolist/doneTask", editStatusTask)
+        .patch('/api/todolist/doneTask', editStatusTask)
         .then((res) => {
           // console.log(res);
           if (res.status === OK) {
@@ -206,12 +215,11 @@ const task = {
             //200意外
             commit('error/setCode', res.status, { root: true });
           }
-        }).catch(error => {
+        })
+        .catch((error) => {
           return error;
         });
     },
-
-
   },
 };
 

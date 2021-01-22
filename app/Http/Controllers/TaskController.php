@@ -88,7 +88,8 @@ class TaskController extends Controller
 			$task = Task::find($id);
 			if($task){
 				$res = $task->delete();
+				return response()->json(['success'=>$res]);
 			}
-			return response()->json(['success'=>$res]);
+			return null;
 		}
 }

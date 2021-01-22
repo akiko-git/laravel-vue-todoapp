@@ -7,11 +7,13 @@ window._ = require('lodash');
  */
 
 try {
-    window.Popper = require('popper.js').default;
-    window.$ = window.jQuery = require('jquery');
+  window.Popper = require('popper.js').default;
+  window.$ = window.jQuery = require('jquery');
 
-    require('bootstrap');
-} catch (e) { }
+  require('bootstrap');
+} catch (e) {
+  // continue regardless of error
+}
 
 /**
  * We'll load the axios HTTP library which allows us to easily issue requests
@@ -25,10 +27,10 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
 //interceptorsでエラーレスポンスをまとめる
 window.axios.interceptors.response.use(
-    // 成功時のレスポンス
-    response => response,
-    // エラーレスポンスをレスポンスオブジェクトで返す
-    error => error.response || error
+  // 成功時のレスポンス
+  (response) => response,
+  // エラーレスポンスをレスポンスオブジェクトで返す
+  (error) => error.response || error
 );
 
 /**
